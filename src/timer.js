@@ -9,20 +9,32 @@
 //export {Timer};
 
 class Timer {
-	constructor(ms, callback) {
-		this.ms = ms;
+	constructor(callback) {
 		this.alarm = callback || null;
 		this.loop = null;
+		this.interval = 0;
+		this.ack = null;
+		this.lastTime = 0;
+		this.elapsedTime = 0;
+		this.accumulatedTime = 0;
+		
+		this.tick = time => {
+			this.elapsedTime += Date.now() - this.lastTime;
+			this.accumulatedTime += Date.now() - this.lastTime;
+			while (this.accumulatedTime >= this.interval) {
+				this.ack();
+				this.accumulatedTime -= this.interval;
+			}
+			
+			this.lastTime = Date.now();
+			this.loop = requestAnimationFrame(this.tick);
+		};
 	}
-	
-	tick(dt) {
-		this.ms += dt;
-	};
 	
 	getTime() {
 		// values that show on the clock
-		const minutes = Math.floor(this.ms / 60000);
-		const seconds = Math.ceil(this.ms / 1000) % 60;
+		const minutes = Math.floor(this.elapsedTime / 60000);
+		const seconds = Math.ceil(this.elapsedTime / 1000) % 60;
 		
 		if (seconds === 60) {
 			return (minutes + 1)+':'+0+0;
@@ -33,16 +45,25 @@ class Timer {
 		}
 	};
 	
-	start(dt, callback) {
-		this.loop = setInterval(() => {
-			this.tick(dt);
-			if (callback && typeof(callback) == 'function') {
-				callback();
-			}
-		}, dt);
+	start(interval, callback) {
+		this.lastTime = Date.now();
+		this.interval = interval;
+		if (callback && typeof(callback) == 'function') {
+			this.ack = callback;
+		}
+		
+		this.tick();
 	};
 	
 	stop() {
-		clearInterval(this.loop);
+		cancelAnimationFrame(this.loop);
+		this.interval = 0;
+		this.ack = null;
 	};
+	
+	reset() {
+		this.stop();
+		this.elapsedTime = 0;
+		this.accumulatedTime = 0;
+	}
 };
