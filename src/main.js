@@ -12,9 +12,13 @@ ctx.fillRect(0, 0, canv.width, canv.height);
 
 const dt = 1000 / 60;
 var pause = false;
-
+var started = false;
+var swaps = [];
+swaps.depth = 0;
+const algorithms = new Map();
 const data = [];
-const DATA_SIZE = 1000;
+const DATA_SIZE = 100;
+const timer = new Timer();
 
 const bar = {
 	w: canv.width / DATA_SIZE,
@@ -30,8 +34,6 @@ const createData = size => {
 		data[i] = Math.random();
 	}
 };
-
-const algorithms = new Map();
 
 const render = (arr, idx = null, color = null) => {
 	var set = new Set();
@@ -73,8 +75,6 @@ const sleep = ms => {
 	return new Promise(res => setTimeout(res, ms));
 };
 
-const timer = new Timer();
-
 const start = () => {
 	loop = requestAnimationFrame(update);
 };
@@ -83,8 +83,8 @@ const stop = () => {
 	cancelAnimationFrame(loop);
 };
 
-Array.prototype.swap = async function(a, b) {
-	await sleep(dt);
+Array.prototype.swap = function(a, b) {
+	//await sleep(dt);
 	
 	let temp;
 	if (-1 < a && a < this.length) {
@@ -134,67 +134,88 @@ const asyncSort = async (arr, algorithm) => {
 	if (typeof(algorithm == 'function')) {
 		await algorithm(arr);
 		timer.stop();
+		started = false;
 		await arr.isSorted();
 	}
 };
 
-algorithms.set('quicksort', async (arr, lo = 0, hi = arr.length - 1) => {
-	const partition = async () => {
+const drawSort = async (depth = 0) => {
+	if (depth > swaps.length - 1) {
+		console.error('Too deep');
+		return;
+	}
+	
+	let i = swaps.depth;
+	if (depth > swaps.depth) {
+		for (i; i < depth; i++) {
+			data.swap(swaps[i][0], swaps[i][1]);
+		}
+	} else if (depth < swaps.depth) {
+		for (i; i > depth - 1; i--) {
+			data.swap(swaps[i][0], swaps[i][1]);
+		}
+	}
+	
+	render(['data']);
+	
+	while (!pause && i < swaps.length) {
+		data.swap(swaps[i][0], swaps[i][1]);
+		render(['data']);
+		render(['bar'], swaps[i][0]);
+		render(['bar'], swaps[i][1]);
+		await sleep(dt);
+		
+		i++;
+	}
+	
+	swaps.depth = i;
+};
+
+algorithms.change = alg => {
+	let tmp = data.slice(0);
+	algorithms.get(alg)(tmp);
+};
+
+algorithms.set('quicksort', (arr, lo = 0, hi = arr.length - 1) => {
+	const partition = () => {
 		const pivot = arr[hi];
 		let i = lo;
 		for (let j = lo; j < hi; j++) {
-			if (pause) {
-				break;
-			}
-			
 			if (arr[j] < pivot) {
-				await arr.swap(i, j);
-				render(['bar'], i);
-				render(['bar'], j);
+				swaps.push([i, j]);
+				arr.swap(i, j);
 				i++;
 			}
 		}
 		
-		if (!pause) {
-			await arr.swap(i, hi);
-			render(['bar'], i);
-			render(['bar'], hi);
-			return i;
-		}
+		swaps.push([i, hi]);
+		arr.swap(i, hi);
+		return i;
 	};
 	
 	if (lo < hi) {
-		let p = await partition(arr, lo, hi);
-		await algorithms.get('quicksort')(arr, lo, p - 1);
-		await algorithms.get('quicksort')(arr, p + 1, hi);
+		let p = partition(arr, lo, hi);
+		algorithms.get('quicksort')(arr, lo, p - 1);
+		algorithms.get('quicksort')(arr, p + 1, hi);
 	}
 });
 
-
-algorithms.set('bubblesort', async arr => {
-	var swapped = false;
+algorithms.set('bubblesort', arr => {
+	let swapped = false;
 	do {
-		if (pause) {
-			break;
-		}
-			
 		swapped = false;
 		for (let i = 1; i < arr.length; i++) {
 			if (arr[i - 1] > arr[i]) {
-				await arr.swap(i - 1, i);
-				render(['bar'], i - 1);
-				render(['bar'], i);
+				swaps.push([i - 1, i]);
+				arr.swap(i - 1, i);
 				swapped = true;
 			}
 		}
 	} while (swapped != false);
 });
 
-algorithms.set('selection sort', async arr => {
+algorithms.set('selection sort', arr => {
 	for (let i = 0; i < arr.length - 1; i++) {
-		if (pause) {
-			break;
-		}
 		
 		let min = i;
 		for (let j = i + 1; j < arr.length; j++) {
@@ -204,25 +225,19 @@ algorithms.set('selection sort', async arr => {
 		}
 		
 		if (min != i) {
-			await arr.swap(i, min);
-			render(['bar'], i);
-			render(['bar'], min);
+			swaps.push([i, min]);
+			arr.swap(i, min);
 		}
 	}
 });
 
-algorithms.set('insertion sort', async arr => {
+algorithms.set('insertion sort', arr => {
 	let i = 1;
 	while (i < arr.length) {
-		if (pause) {
-			break;
-		}
-		
 		let j = i;
 		while (j > 0 && arr[j - 1] > arr[j]) {
-			await arr.swap(j, j - 1);
-			render(['bar'], j);
-			render(['bar'], j - 1);
+			swaps.push([j, j - 1]);
+			arr.swap(j, j - 1);
 			
 			j--;
 		}
@@ -231,28 +246,46 @@ algorithms.set('insertion sort', async arr => {
 	}
 });
 
+algorithms.set('merge sort', arr => {
+	
+});
+
 window.onload = () => {
 	$('main').prepend(canv);
 	$('canvas').addClass('img-fluid mx-auto');
 	
 	const $reset = $('#reset');
 	$reset.click(() => {
+		started = false;
 		pause = true;
 		timer.reset();
 		createData(DATA_SIZE);
+		$start.html('Start');
 		render('all');
 	});
 	
 	const $start = $('#start');
 	$start.click(() => {
-		pause = false;
-		
-		timer.start(1000, () => {
-			render(['timer']);
-		});
-		
-		let alg = $('#algorithm')[0][$('#algorithm')[0].selectedIndex].value;
-		asyncSort(data, algorithms.get(alg));
+		if (!started) {
+			started = true;
+			pause = false;
+			
+			$start.html('Stop');
+			timer.start(1000, () => {
+				render(['timer']);
+			});
+			
+			let alg = $('#algorithm')[0][$('#algorithm')[0].selectedIndex].value;
+			swaps.depth = 0;
+			algorithms.change(alg);
+			//asyncSort(data, algorithms.get(alg));
+			drawSort();
+		} else if (!pause) {
+			pause = true;
+		} else {
+			pause = false;
+			drawSort(swaps.depth);
+		}
 	});
 	
 	createData(DATA_SIZE);
