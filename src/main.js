@@ -13,11 +13,12 @@ ctx.fillRect(0, 0, canv.width, canv.height);
 const dt = 1000 / 60;
 var pause = false;
 var started = false;
-var swaps = [];
-swaps.depth = 0;
+var depth = 0;
+var sequence = [];
+
 const algorithms = new Map();
-const data = [];
-const DATA_SIZE = 100;
+var data = [];
+var DATA_SIZE = 100;
 const timer = new Timer();
 
 const bar = {
@@ -49,6 +50,32 @@ const render = (arr, idx = null, color = null) => {
 			ctx.fillStyle = 'white';
 			ctx.fillRect(bar.w * idx, canv.height, bar.w / 2, d * -500);
 		});
+	}
+	
+	if (set.has('hud') || arr == 'all') {
+		ctx.fillStyle = 'black';
+		ctx.fillRect(198, 6, 120, 48);
+		
+		let comparisons = 0, swaps = 0, shuffles = 0;
+		sequence.forEach(step => {
+			switch(step.type) {
+				case 'comparison':
+					comparisons++;
+					break;
+				case 'swap':
+					swaps++;
+					break;
+				case 'shuffle':
+					shuffles++;
+					break;
+			}
+		});
+		
+		ctx.fillStyle = 'white';
+		ctx.textAlign = 'left';
+		ctx.fillText('Comparisons: ' + comparisons, 200, 16);
+		ctx.fillText('Swaps: ' + swaps, 200, 32);
+		ctx.fillText('Shuffles: ' + shuffles, 200, 48);
 	}
 	
 	if (set.has('timer') || arr == 'all') {
@@ -130,50 +157,79 @@ Array.prototype.isSorted = async function(asc = true) {
 	}
 };
 
-const asyncSort = async (arr, algorithm) => {
-	if (typeof(algorithm == 'function')) {
-		await algorithm(arr);
-		timer.stop();
-		started = false;
-		await arr.isSorted();
-	}
-};
-
 const drawSort = async (depth = 0) => {
-	if (depth > swaps.length - 1) {
+	if (depth > sequence.length /* depth > swaps.length - 1 && depth > shuffles.length - 1 */) {
 		console.error('Too deep');
 		return;
 	}
 	
-	let i = swaps.depth;
-	if (depth > swaps.depth) {
+	let i = depth;
+	/* if (depth > depth) {
 		for (i; i < depth; i++) {
-			data.swap(swaps[i][0], swaps[i][1]);
+			if (i < swaps.length) {
+				data.swap(swaps[i][0], swaps[i][1]);
+			}
+			
+			/* if (i < shuffles.length) {
+				let idx = shuffles[i].idx;
+				let p = shuffles[i].part;
+				for (let j = 0; j < p.length; j++) {
+					if (p[j] != data[idx + j]) {
+						data[idx + j] = p[j];
+					}
+				}
 		}
-	} else if (depth < swaps.depth) {
+	} else if (depth < depth) {
 		for (i; i > depth - 1; i--) {
-			data.swap(swaps[i][0], swaps[i][1]);
+			if (i < swaps.length) {
+				data.swap(swaps[i][0], swaps[i][1]);
+			}
 		}
-	}
+	} */
 	
-	render(['data']);
-	
-	while (!pause && i < swaps.length) {
-		data.swap(swaps[i][0], swaps[i][1]);
-		render(['data']);
-		render(['bar'], swaps[i][0]);
-		render(['bar'], swaps[i][1]);
-		await sleep(dt);
-		
+	let j = 0, k = 0;
+	while (!pause && i < sequence.length) {
+		switch(sequence[i].type) {
+			case 'comparison':
+				let comparison = sequence[i];
+				render(['data']);
+				render(['bar'], comparison.a, 'green');
+				render(['bar'], comparison.b, 'green');
+				await sleep(dt);
+				break;
+			case 'swap':
+				let swap = sequence[i];
+				data.swap(swap.a, swap.b);
+				
+				render(['data']); 
+				render(['bar'], swap.a);
+				render(['bar'], swap.b);
+				await sleep(dt);
+				break;
+			case 'shuffle':
+				let shuffle = sequence[i];
+				data.splice(shuffle.a, 1);
+				data.splice(shuffle.b, 0, shuffle.v);
+				
+				render(['data']);
+				render(['bar'], shuffle.a);
+				render(['bar'], shuffle.b);
+				await sleep(dt);
+				break;
+		}
+			
 		i++;
 	}
 	
-	swaps.depth = i;
+	depth = i;
+	timer.stop();
 };
 
 algorithms.change = alg => {
-	let tmp = data.slice(0);
-	algorithms.get(alg)(tmp);
+	sequence = [];
+	algorithms.get(alg)(data.slice(0));
+	
+	render(['hud']);
 };
 
 algorithms.set('quicksort', (arr, lo = 0, hi = arr.length - 1) => {
@@ -181,14 +237,15 @@ algorithms.set('quicksort', (arr, lo = 0, hi = arr.length - 1) => {
 		const pivot = arr[hi];
 		let i = lo;
 		for (let j = lo; j < hi; j++) {
+			sequence.push({type: 'comparison', a: j, b: hi});
 			if (arr[j] < pivot) {
-				swaps.push([i, j]);
+				sequence.push({type: 'swap', a: i, b: j});
 				arr.swap(i, j);
 				i++;
 			}
 		}
 		
-		swaps.push([i, hi]);
+		sequence.push({type: 'swap', a: i, b: hi});
 		arr.swap(i, hi);
 		return i;
 	};
@@ -205,8 +262,9 @@ algorithms.set('bubblesort', arr => {
 	do {
 		swapped = false;
 		for (let i = 1; i < arr.length; i++) {
+			sequence.push({type: 'comparison', a: i - 1, b: i});
 			if (arr[i - 1] > arr[i]) {
-				swaps.push([i - 1, i]);
+				sequence.push({type: 'swap', a: i - 1, b: i});
 				arr.swap(i - 1, i);
 				swapped = true;
 			}
@@ -219,13 +277,15 @@ algorithms.set('selection sort', arr => {
 		
 		let min = i;
 		for (let j = i + 1; j < arr.length; j++) {
+			sequence.push({type: 'comparison', a: j, b: min});
 			if (arr[j] < arr[min]) {
 				min = j;
 			}
 		}
 		
+		//sequence.push({type: 'comparison', a: i, b: min});
 		if (min != i) {
-			swaps.push([i, min]);
+			sequence.push({type: 'swap', a: i, b: min});
 			arr.swap(i, min);
 		}
 	}
@@ -235,8 +295,9 @@ algorithms.set('insertion sort', arr => {
 	let i = 1;
 	while (i < arr.length) {
 		let j = i;
+		sequence.push({type: 'comparison', a: j - 1, b: j});
 		while (j > 0 && arr[j - 1] > arr[j]) {
-			swaps.push([j, j - 1]);
+			sequence.push({type: 'swap', a: j, b: j - 1});
 			arr.swap(j, j - 1);
 			
 			j--;
@@ -246,13 +307,72 @@ algorithms.set('insertion sort', arr => {
 	}
 });
 
-algorithms.set('merge sort', arr => {
+algorithms.set('merge sort', (arr, idx = 0) => {
+	const merge = (left, right) => {
+		let result = [];
+
+		let iL = idx;
+		let iR = idx + left.length;
+		while (left.length > 0 && right.length > 0) {
+			sequence.push({type: 'comparison', a: iL, b: iR});
+			if (left[0] <= right[0]) {
+				result.push(left.shift());
+				iL++;
+			} else {
+				sequence.push({type: 'shuffle', a: iR, b: idx + result.length, v: right[0]}); // when ascending part is sorted if left side is <= right
+				result.push(right.shift());
+				iR++;
+			}
+		}
+
+		// (Only one of the following loops will actually be entered.)
+		while (left.length > 0) {
+			result.push(left.shift());
+		}
+		while (right.length > 0) {
+			result.push(right.shift());
+		}
+		
+		return result;
+	};
 	
+	if (arr.length <= 1) {
+		return arr;
+	}
+	
+	let l = [];
+    let r = [];
+    for (let i = 0; i < arr.length; i++) {
+        if (i < arr.length / 2) {
+            l.push(arr[i]);
+        } else {
+            r.push(arr[i]);
+		}
+	}
+	
+    l = algorithms.get('merge sort')(l, idx);
+    r = algorithms.get('merge sort')(r, idx + l.length);
+	
+    let m = merge(l, r);
+	return m;
 });
 
 window.onload = () => {
 	$('main').prepend(canv);
 	$('canvas').addClass('img-fluid mx-auto');
+	
+	const $values = $('#values')[0];
+	$('#values').keyup(() => {
+		try {
+			DATA_SIZE = eval($values.value) <= 1000 ? eval($values.value) : 1000;
+			createData(DATA_SIZE);
+			bar.w = canv.width / DATA_SIZE;
+			render('all');
+		} catch(e) {
+			DATA_SIZE = 100;
+			console.error('Not a number.');
+		}
+	});
 	
 	const $reset = $('#reset');
 	$reset.click(() => {
@@ -276,15 +396,15 @@ window.onload = () => {
 			});
 			
 			let alg = $('#algorithm')[0][$('#algorithm')[0].selectedIndex].value;
-			swaps.depth = 0;
+			depth = 0;
 			algorithms.change(alg);
-			//asyncSort(data, algorithms.get(alg));
 			drawSort();
+			started = false;
 		} else if (!pause) {
 			pause = true;
 		} else {
 			pause = false;
-			drawSort(swaps.depth);
+			drawSort(depth);
 		}
 	});
 	
