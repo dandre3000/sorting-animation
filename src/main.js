@@ -301,6 +301,7 @@ algorithms.set('insertion sort', arr => {
 			arr.swap(j, j - 1);
 			
 			j--;
+			sequence.push({type: 'comparison', a: j - 1, b: j});
 		}
 		
 		i++;
@@ -355,6 +356,44 @@ algorithms.set('merge sort', (arr, idx = 0) => {
 	
     let m = merge(l, r);
 	return m;
+});
+
+algorithms.set('heap sort', arr => {
+    let array_length = arr.length;
+	 
+	const heapRoot = i => {
+		let left = 2 * i + 1;
+		let right = 2 * i + 2;
+		let max = i;
+
+		sequence.push({type: 'comparison', a: left, b: max});
+		if (left < array_length && arr[left] > arr[max]) {
+			max = left;
+		}
+
+		sequence.push({type: 'comparison', a: right, b: max});
+		if (right < array_length && arr[right] > arr[max]) {
+			max = right;
+		}
+
+		if (max != i) {
+			sequence.push({type: 'swap', a: i, b: max});
+			arr.swap(i, max);
+			heapRoot(max);
+		}
+	};
+
+	for (let i = Math.floor(array_length / 2); i >= 0; i -= 1) {
+		heapRoot(i);
+	}
+
+	for (let i = arr.length - 1; i > 0; i--) {
+		sequence.push({type: 'swap', a: 0, b: i});
+		arr.swap(0, i);
+		array_length--;
+		
+		heapRoot(0);
+	}
 });
 
 window.onload = () => {
