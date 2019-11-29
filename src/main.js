@@ -27,6 +27,8 @@ const bar = {
 }
 
 const createData = size => {
+	data = [];
+	
 	for (let i = 0; i < size; i++) {
 		const dataPoint = {
 			value: Math.random(),
@@ -102,14 +104,6 @@ const sleep = ms => {
 	return new Promise(res => setTimeout(res, ms));
 };
 
-const start = () => {
-	loop = requestAnimationFrame(update);
-};
-
-const stop = () => {
-	cancelAnimationFrame(loop);
-};
-
 Array.prototype.swap = function(a, b) {
 	//await sleep(dt);
 	
@@ -158,6 +152,9 @@ Array.prototype.isSorted = async function(asc = true) {
 };
 
 const drawSort = async (depth = 0) => {
+	let min;
+	let p;
+	
 	if (depth > sequence.length /* depth > swaps.length - 1 && depth > shuffles.length - 1 */) {
 		console.error('Too deep');
 		return;
@@ -189,19 +186,43 @@ const drawSort = async (depth = 0) => {
 	
 	let j = 0, k = 0;
 	while (!pause && i < sequence.length) {
+		render(['data']);
+		
+		if (min) {
+			render(['bar'], min, 'blue');
+		}
+		if (p) {
+			render(['bar'], p, 'blue');
+		}
+		
 		switch(sequence[i].type) {
+			case 'minimum':
+				let minimum = sequence[i];
+				min = minimum.min;
+				
+				render(['bar'], min, 'blue');
+				await sleep(dt);
+				break;
+			case 'pivot':
+				let pivot = sequence[i];
+				p = pivot.p;
+				
+				render(['bar'], p, 'blue');
+				await sleep(dt);
+				break;
 			case 'comparison':
 				let comparison = sequence[i];
-				render(['data']);
+				
 				render(['bar'], comparison.a, 'green');
-				render(['bar'], comparison.b, 'green');
+				if (comparison.b) {
+					render(['bar'], comparison.b, 'green');
+				}
 				await sleep(dt);
 				break;
 			case 'swap':
 				let swap = sequence[i];
 				data.swap(swap.a, swap.b);
 				
-				render(['data']); 
 				render(['bar'], swap.a);
 				render(['bar'], swap.b);
 				await sleep(dt);
@@ -211,7 +232,6 @@ const drawSort = async (depth = 0) => {
 				data.splice(shuffle.a, 1);
 				data.splice(shuffle.b, 0, shuffle.v);
 				
-				render(['data']);
 				render(['bar'], shuffle.a);
 				render(['bar'], shuffle.b);
 				await sleep(dt);
@@ -223,6 +243,7 @@ const drawSort = async (depth = 0) => {
 	
 	depth = i;
 	timer.stop();
+	data.isSorted();
 };
 
 algorithms.change = alg => {
@@ -235,9 +256,10 @@ algorithms.change = alg => {
 algorithms.set('quicksort', (arr, lo = 0, hi = arr.length - 1) => {
 	const partition = () => {
 		const pivot = arr[hi];
+		sequence.push({type: 'pivot', p: hi});
 		let i = lo;
 		for (let j = lo; j < hi; j++) {
-			sequence.push({type: 'comparison', a: j, b: hi});
+			sequence.push({type: 'comparison', a: j});
 			if (arr[j] < pivot) {
 				sequence.push({type: 'swap', a: i, b: j});
 				arr.swap(i, j);
@@ -276,10 +298,12 @@ algorithms.set('selection sort', arr => {
 	for (let i = 0; i < arr.length - 1; i++) {
 		
 		let min = i;
+		sequence.push({type: 'minimum', min: min});
 		for (let j = i + 1; j < arr.length; j++) {
-			sequence.push({type: 'comparison', a: j, b: min});
+			sequence.push({type: 'comparison', a: j});
 			if (arr[j] < arr[min]) {
 				min = j;
+				sequence.push({type: 'minimum', min: min});
 			}
 		}
 		
