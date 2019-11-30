@@ -294,6 +294,32 @@ algorithms.set('bubblesort', arr => {
 	} while (swapped != false);
 });
 
+algorithms.set('comb sort', arr => {
+	let gap = arr.length;
+	let shrink = 1.3;
+	let sorted = false;
+
+	while (sorted == false) {
+		gap = Math.floor(gap / shrink);
+		if (gap <= 1) {
+			gap = 1;
+			sorted = true;
+		}
+
+		let i = 0;
+		while (i + gap < arr.length) {
+			sequence.push({type: 'comparison', a: i, b: i + gap});
+			if (arr[i] > arr[i + gap]) {
+				sequence.push({type: 'swap', a: i, b: i + gap});
+				arr.swap(i, i + gap);
+				sorted = false;
+			}
+
+			i++;
+		}
+	}
+});
+
 algorithms.set('selection sort', arr => {
 	for (let i = 0; i < arr.length - 1; i++) {
 		
@@ -418,6 +444,29 @@ algorithms.set('heap sort', arr => {
 		
 		heapRoot(0);
 	}
+});
+
+algorithms.set('shellsort', arr => {
+	const insertionSort = gap => {
+		let i = gap;
+		while (i < arr.length) {
+			let j = i;
+			sequence.push({type: 'comparison', a: j - gap, b: j});
+			while (j > 0 && arr[j - gap] > arr[j]) {
+				sequence.push({type: 'swap', a: j, b: j - gap});
+				arr.swap(j, j - gap);
+				
+				j -= gap;
+				sequence.push({type: 'comparison', a: j - gap, b: j});
+			}
+			
+			i += gap;
+		}
+	}
+	
+	const gaps = [987, 610, 377, 233, 144, 89, 55, 34, 21, 13, 8, 5, 3, 1/* 701, 301, 132, 57, 23, 10, 4, 1 */].forEach(gap => {
+		insertionSort(gap);
+	});
 });
 
 window.onload = () => {
