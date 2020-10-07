@@ -1,0 +1,16 @@
+
+#array-display {
+	width: 100%;
+}
+button:disabled {
+	background-color: black;
+}
+
+
+body {
+	background-color: var(--gray);
+	font-family: Arial, sans-serif;
+}
+
+
+/*# sourceMappingURL=app.css.map*/
