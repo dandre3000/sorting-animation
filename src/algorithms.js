@@ -217,3 +217,41 @@ export const insertionsort = (arr, descending) => {
 	
 	return sequence
 }
+
+export const selectionsort = (arr, descending) => {
+	const copy = [].concat(arr)
+	
+	const sequence = [{ type: 'genesis' }]
+	sequence.index = 0
+	
+	for (let i = 0; i < copy.length - 1; i++) {
+		let min = i
+		
+		if (!descending) {
+			for (let j = i + 1; j < copy.length; j++) {
+				sequence.push({ type: 'comparison', index1: j, index2: min, operator: '<' })
+				
+				if (copy[j] < copy[min]) {
+					min = j
+				}
+			}
+		} else {
+			for (let j = i + 1; j < copy.length; j++) {
+				sequence.push({ type: 'comparison', index1: j, index2: min, operator: '>' })
+				
+				if (copy[j] > copy[min]) {
+					min = j
+				}
+			}
+
+		}
+		
+		sequence.push({ type: 'swap', index1: i, index2: min })
+		
+		swap(copy, i, min)
+	}
+	
+	sequence.push({ type: 'end' })
+	
+	return sequence
+}

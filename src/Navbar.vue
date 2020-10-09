@@ -10,6 +10,7 @@
 					<a class="dropdown-item" href="#" @click="setSort('bubblesort')">Bubblesort</a>
 					<a class="dropdown-item" href="#" @click="setSort('quicksort')">Quicksort</a>
 					<a class="dropdown-item" href="#" @click="setSort('insertionsort')">Insertionsort</a>
+					<a class="dropdown-item" href="#" @click="setSort('selectionsort')">Selectionsort</a>
 				</div>
 			</div>
 		</nav>
