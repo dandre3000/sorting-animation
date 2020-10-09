@@ -17,17 +17,19 @@
 } */
 
 const swap = (arr, idx1, idx2) => {
+	if (idx1 == idx2) return
+	
 	const a = arr[idx1]
 	
 	arr[idx1] = arr[idx2]
 	arr[idx2] = a
 }
 
-export const bubblesort = arr => {
+export const bubblesort = (arr, descending) => {
 	// if (!isNumberArray(arr)) throw new TypeError('arr must be an array of all numbers')
 
 	const copy = [].concat(arr)
-
+	
 	let swapped = false
 	let j = copy.length - 1
 	
@@ -37,17 +39,33 @@ export const bubblesort = arr => {
 	do {
 		swapped = false
 		
-		for (let i = 0; i < j; i++) {
-			const a = copy[i]
-			const b = copy[i + 1]
-			
-			sequence.push({ type: 'comparison', index1: i, index2: i + 1, operator: '>' })
-			
-			if (a > b) {
-				swap(copy, i, i + 1)
+		if (!descending) {
+			for (let i = 0; i < j; i++) {
+				const a = copy[i]
+				const b = copy[i + 1]
 				
-				swapped = true
-				sequence.push({ type: 'swap', index1: i, index2: i + 1 })
+				sequence.push({ type: 'comparison', index1: i, index2: i + 1, operator: '>' })
+				
+				if (a > b) {
+					swap(copy, i, i + 1)
+					
+					swapped = true
+					sequence.push({ type: 'swap', index1: i, index2: i + 1 })
+				}
+			}
+		} else {
+			for (let i = 0; i < j; i++) {
+				const a = copy[i]
+				const b = copy[i + 1]
+				
+				sequence.push({ type: 'comparison', index1: i, index2: i + 1, operator: '<' })
+				
+				if (a < b) {
+					swap(copy, i, i + 1)
+					
+					swapped = true
+					sequence.push({ type: 'swap', index1: i, index2: i + 1 })
+				}
 			}
 		}
 		
@@ -61,7 +79,7 @@ export const bubblesort = arr => {
 
 
 
-export const quicksort = arr => {
+export const quicksort = (arr, descending) => {
 	const copy = [].concat(arr)
 	
 	const sequence = [{ type: 'genesis' }]
@@ -95,24 +113,45 @@ export const quicksort = arr => {
 	} */
 	
 	const partition = (arr, l, r) => {
-		const pivot = arr[l] // 1st element
-		let i = l + 1
-		
-		for (let j = i; j <= r; j++) {
-			sequence.push({ type: 'comparison', index1: j, index2: l, operator: '<' })
+		if (!descending) {
+			const pivot = arr[l] // 1st element
+			let i = l + 1
 			
-			if (arr[j] < pivot) {
-				sequence.push({ type: 'swap', index1: i, index2: j })
+			for (let j = i; j <= r; j++) {
+				sequence.push({ type: 'comparison', index1: j, index2: l, operator: '<' })
 				
-				swap(arr, i, j)
-				i++
+				if (arr[j] < pivot) {
+					sequence.push({ type: 'swap', index1: i, index2: j })
+					
+					swap(arr, i, j)
+					i++
+				}
 			}
+			
+			sequence.push({ type: 'swap', index1: l, index2: i - 1 })
+			swap(arr, l, i - 1)
+			
+			return i - 1
+		} else {
+			const pivot = arr[l] // 1st element
+			let i = l + 1
+			
+			for (let j = i; j <= r; j++) {
+				sequence.push({ type: 'comparison', index1: j, index2: l, operator: '>' })
+				
+				if (arr[j] > pivot) {
+					sequence.push({ type: 'swap', index1: i, index2: j })
+					
+					swap(arr, i, j)
+					i++
+				}
+			}
+			
+			sequence.push({ type: 'swap', index1: l, index2: i - 1 })
+			swap(arr, l, i - 1)
+			
+			return i - 1
 		}
-		
-		sequence.push({ type: 'swap', index1: l, index2: i - 1 })
-		swap(arr, l, i - 1)
-		
-		return i - 1
 	}
 
 	/* function sort(items, left, right) {
@@ -146,19 +185,31 @@ export const quicksort = arr => {
 	return sequence
 }
 
-export const insertionsort = (arr) => {
+export const insertionsort = (arr, descending) => {
 	const copy = [].concat(arr)
 	
 	const sequence = [{ type: 'genesis' }]
 	sequence.index = 0
 	
-	for (let i = 1; i < copy.length; i++) {
-		for (let j = i; j >= 0 && copy[j - 1] > copy[j]; j--) {
-			sequence.push({ type: 'comparison', index1: j - 1, index2: j, operator: '>' })
-			
-			sequence.push({ type: 'swap', index1: j - 1, index2: j })
+	if (!descending) {
+		for (let i = 1; i < copy.length; i++) {
+			for (let j = i; j >= 0 && copy[j - 1] > copy[j]; j--) {
+				sequence.push({ type: 'comparison', index1: j - 1, index2: j, operator: '>' })
 				
-			swap(copy, j, j - 1)
+				sequence.push({ type: 'swap', index1: j - 1, index2: j })
+					
+				swap(copy, j, j - 1)
+			}
+		}
+	} else {
+		for (let i = 1; i < copy.length; i++) {
+			for (let j = i; j >= 0 && copy[j - 1] < copy[j]; j--) {
+				sequence.push({ type: 'comparison', index1: j - 1, index2: j, operator: '<' })
+				
+				sequence.push({ type: 'swap', index1: j - 1, index2: j })
+					
+				swap(copy, j, j - 1)
+			}
 		}
 	}
 	

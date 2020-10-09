@@ -11,7 +11,8 @@ export const state = {
 	canvas: null,
 	sort: algorithms['quicksort'],
 	mainBtn: 0,
-	fps: 60
+	fps: 60,
+	descending: false
 }
 
 const mutations = {
@@ -32,6 +33,9 @@ const mutations = {
 	},
 	mainBtn(state, n) {
 		state.mainBtn = n
+	},
+	toggleDescending(state) {
+		state.descending = !state.descending
 	}
 }
 
@@ -39,9 +43,6 @@ const actions = {
 	setArray({ commit }, arr) {
 		commit('setArray', arr)
 		render()
-	},
-	sort({ commit }) {
-		commit('setSequence', state.sort(state.array))
 	},
 	setCanvas: ({ commit }, canv) => {
 		commit('setCanvas', canv)

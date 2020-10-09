@@ -11,6 +11,7 @@
 			</button>
 			<button @click='next' :disabled='isDisabled()'><img src='assets/images/next.png'></button>
 			<button @click='last' :disabled='isDisabled()'><img src='assets/images/last.png'></button>
+			<input id='descending' @input="toggleDescending" type="checkbox"><label for="descending">Descending</label>
 		</div>
 		<div class='row'>
 			<input id='fps' @input="setFps" type="range" min="1" max="60" value="60" class="slider"><p>Fps: {{ $store.state.fps }}</p>
@@ -26,35 +27,41 @@
 	export default {
 		methods: {
 			first() {
-				if (!this.$store.state.sequence) {
-					this.$store.commit('setSequence', this.$store.state.sort(this.$store.state.array))
+				const $s = this.$store
+				
+				if (!$s.state.sequence) {
+					$s.commit('setSequence', $s.state.sort($s.state.array, $s.state.descending))
 				}
 				
 				step(-99999)
-				this.$store.commit('mainBtn', 0)
+				$s.commit('mainBtn', 0)
 			},
 			previous() {
-				if (!this.$store.state.sequence) {
-					this.$store.commit('setSequence', this.$store.state.sort(this.$store.state.array))
+				const $s = this.$store
+				
+				if (!$s.state.sequence) {
+					$s.commit('setSequence', $s.state.sort($s.state.array, $s.state.descending))
 				}
 				
 				step(-1)
-				this.$store.commit('mainBtn', 0)
+				$s.commit('mainBtn', 0)
 			},
 			play() {
-				if (this.$store.state.mainBtn == 1) {
+				const $s = this.$store
+				
+				if ($s.state.mainBtn == 1) {
 					stop()
 					// e.firstChild.src = 'assets/images/play.png'
-				} else if (this.$store.state.mainBtn == 0) {
-					if (!this.$store.state.sequence) {
-						this.$store.commit('setSequence', this.$store.state.sort(this.$store.state.array))
+				} else if ($s.state.mainBtn == 0) {
+					if (!$s.state.sequence) {
+						$s.commit('setSequence', $s.state.sort($s.state.array, $s.state.descending))
 					}
 					
 					start()
 					// e.firstChild.src = 'assets/images/pause.png'
 				} else {
-					if (!this.$store.state.sequence) {
-						this.$store.commit('setSequence', this.$store.state.sort(this.$store.state.array))
+					if (!$s.state.sequence) {
+						$s.commit('setSequence', $s.state.sort($s.state.array, $s.state.descending))
 					}
 					
 					step(-99999)
@@ -62,37 +69,46 @@
 				}
 			},
 			next() {
-				if (!this.$store.state.sequence) {
-					this.$store.commit('setSequence', this.$store.state.sort(this.$store.state.array))
+				const $s = this.$store
+				
+				if (!$s.state.sequence) {
+					$s.commit('setSequence', $s.state.sort($s.state.array, $s.state.descending))
 				}
 				
 				step(1)
 				
-				if (this.$store.state.sequence.index == this.$store.state.sequence.length - 1) {
-					this.$store.commit('mainBtn', 2)
+				if ($s.state.sequence.index == $s.state.sequence.length - 1) {
+					$s.commit('mainBtn', 2)
 				}
 			},
 			last() {
-				if (!this.$store.state.sequence) {
-					this.$store.commit('setSequence', this.$store.state.sort(this.$store.state.array))
+				const $s = this.$store
+				
+				if (!$s.state.sequence) {
+					$s.commit('setSequence', $s.state.sort($s.state.array, $s.state.descending))
 				}
 				
 				step(99999)
-				this.$store.commit('mainBtn', 2)
+				$s.commit('mainBtn', 2)
 			},
 			setFps() {
 				this.$store.commit('setFps', document.querySelector('#fps').value)
 			},
 			isDisabled() {
 				return this.$store.state.mainBtn == 1
+			},
+			toggleDescending() {
+				this.$store.commit('toggleDescending')
 			}
 		},
 		mounted: function () {
+			const $s = this.$store
+			
 			this.$nextTick(function () {
-				this.$store.dispatch('setCanvas', document.querySelector('#array-display'))
+				$s.dispatch('setCanvas', document.querySelector('#array-display'))
 			})
 			
-			setStore(this.$store)
+			setStore($s)
 			window.display = this
 		}
 	}
