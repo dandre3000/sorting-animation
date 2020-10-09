@@ -5,4 +5,4 @@
 - Random array generation with interactive length and max value
 - Input based array generation
 
-[Link to the app](https://dandre3000.github.io/sorting-animation/dist/)
+[Link to the app](https://sorting-animation.netlify.app/)
