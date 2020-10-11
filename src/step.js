@@ -26,11 +26,13 @@ export const step = n => {
 	}
 	
 	while (i != target) {
-		if (n < 0) {
-			if (sequence[i].type == 'swap') {
+		if (n < 0) { // reverse
+			if (sequence[i].type == 'swap') { // two swaps cancel each other
 				let {index1, index2} = sequence[i]
 				
 				swap(tmpArray, index1, index2)
+			} else if (sequence[i].type == 'status') {
+				tmpArray[sequence[i].idx].status = sequence[i].before
 			}
 			
 			i--
@@ -41,6 +43,8 @@ export const step = n => {
 				let {index1, index2} = sequence[i]
 				
 				swap(tmpArray, index1, index2)
+			} else if (sequence[i].type == 'status') {
+				tmpArray[sequence[i].idx].status = sequence[i].after
 			}
 		}
 		

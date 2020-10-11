@@ -27,78 +27,34 @@
 	export default {
 		methods: {
 			first() {
-				const $s = this.$store
-				
-				if (!$s.state.sequence) {
-					$s.commit('setSequence', $s.state.sort($s.state.array, $s.state.descending))
-				}
-				
-				step(-99999)
-				$s.commit('mainBtn', 0)
+				this.$store.dispatch('first')
 			},
 			previous() {
-				const $s = this.$store
-				
-				if (!$s.state.sequence) {
-					$s.commit('setSequence', $s.state.sort($s.state.array, $s.state.descending))
-				}
-				
-				step(-1)
-				$s.commit('mainBtn', 0)
+				this.$store.dispatch('previous')
 			},
 			play() {
-				const $s = this.$store
-				
-				if ($s.state.mainBtn == 1) {
-					stop()
-					// e.firstChild.src = 'assets/images/play.png'
-				} else if ($s.state.mainBtn == 0) {
-					if (!$s.state.sequence) {
-						$s.commit('setSequence', $s.state.sort($s.state.array, $s.state.descending))
-					}
-					
-					start()
-					// e.firstChild.src = 'assets/images/pause.png'
+				if (this.$store.state.mainBtn == 1) {
+					this.$store.dispatch('pause')
+				} else if (this.$store.state.mainBtn == 0) {
+					this.$store.dispatch('play')
 				} else {
-					if (!$s.state.sequence) {
-						$s.commit('setSequence', $s.state.sort($s.state.array, $s.state.descending))
-					}
-					
-					step(-99999)
-					start()
+					this.$store.dispatch('restart')
 				}
 			},
 			next() {
-				const $s = this.$store
-				
-				if (!$s.state.sequence) {
-					$s.commit('setSequence', $s.state.sort($s.state.array, $s.state.descending))
-				}
-				
-				step(1)
-				
-				if ($s.state.sequence.index == $s.state.sequence.length - 1) {
-					$s.commit('mainBtn', 2)
-				}
+				this.$store.dispatch('next')
 			},
 			last() {
-				const $s = this.$store
-				
-				if (!$s.state.sequence) {
-					$s.commit('setSequence', $s.state.sort($s.state.array, $s.state.descending))
-				}
-				
-				step(99999)
-				$s.commit('mainBtn', 2)
+				this.$store.dispatch('last')
 			},
 			setFps() {
-				this.$store.commit('setFps', document.querySelector('#fps').value)
+				this.$store.dispatch('setFps', document.querySelector('#fps').value)
 			},
 			isDisabled() {
-				return this.$store.state.mainBtn == 1
+				this.$store.dispatch('isDisabled')
 			},
 			toggleDescending() {
-				this.$store.commit('toggleDescending')
+				this.$store.dispatch('toggleDescending')
 			}
 		},
 		mounted: function () {

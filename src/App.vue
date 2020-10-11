@@ -20,6 +20,7 @@
 	import { mapActions } from 'vuex'
 	import Navbar from './Navbar.vue'
 	import Display from './Display.vue'
+	import { Bar } from './Bar.js'
 	
 	export default {
 		components: {
@@ -34,8 +35,9 @@
 		},
 		methods: {
 			readInput() {
-				this.$store.dispatch('setArray', document.querySelector('#input').value.split(',').map(x => Number(x)))
+				this.$store.dispatch('pause')
 				this.$store.commit('setSequence', null)
+				this.$store.dispatch('setArray', document.querySelector('#input').value.split(',').map(x => new Bar(x)))
 			},
 			setLength() {
 				this.length = document.querySelector('#length').value * 1
@@ -51,12 +53,12 @@
 				const arr = new Array(this.length).fill(1)
 				
 				for (let i in arr) {
-					arr[i] = Math.ceil(Math.random() * this.max)
+					arr[i] = new Bar(Math.ceil(Math.random() * this.max))
 				}
 				
-				this.$store.commit('mainBtn', 0)
-				this.$store.dispatch('setArray', arr)
+				this.$store.dispatch('pause')
 				this.$store.commit('setSequence', null)
+				this.$store.dispatch('setArray', arr)
 			}
 		},
 		mounted: function () {

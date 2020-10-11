@@ -1,3 +1,5 @@
+import { SORTED, UNSORTED } from './Bar'
+
 /* const isNumberArray = arr => {
 	if (arr instanceof Array == false) return false
 	
@@ -41,33 +43,35 @@ export const bubblesort = (arr, descending) => {
 		
 		if (!descending) {
 			for (let i = 0; i < j; i++) {
-				const a = copy[i]
-				const b = copy[i + 1]
+				const a = copy[i].value
+				const b = copy[i + 1].value
 				
-				sequence.push({ type: 'comparison', index1: i, index2: i + 1, operator: '>' })
+				sequence.push({ type: 'comparison', index1: i, index2: i + 1 })
 				
 				if (a > b) {
 					swap(copy, i, i + 1)
-					
 					swapped = true
+					
 					sequence.push({ type: 'swap', index1: i, index2: i + 1 })
 				}
 			}
 		} else {
 			for (let i = 0; i < j; i++) {
-				const a = copy[i]
-				const b = copy[i + 1]
+				const a = copy[i].value
+				const b = copy[i + 1].value
 				
-				sequence.push({ type: 'comparison', index1: i, index2: i + 1, operator: '<' })
+				sequence.push({ type: 'comparison', index1: i, index2: i + 1 })
 				
 				if (a < b) {
 					swap(copy, i, i + 1)
-					
 					swapped = true
+
 					sequence.push({ type: 'swap', index1: i, index2: i + 1 })
 				}
 			}
 		}
+		
+		sequence.push({ type: 'status', idx: j, before: UNSORTED, after: SORTED })
 		
 		j--
 	} while (swapped == true)
@@ -114,13 +118,13 @@ export const quicksort = (arr, descending) => {
 	
 	const partition = (arr, l, r) => {
 		if (!descending) {
-			const pivot = arr[l] // 1st element
+			const pivot = arr[l].value // 1st element
 			let i = l + 1
 			
 			for (let j = i; j <= r; j++) {
 				sequence.push({ type: 'comparison', index1: j, index2: l, operator: '<' })
 				
-				if (arr[j] < pivot) {
+				if (arr[j].value < pivot) {
 					sequence.push({ type: 'swap', index1: i, index2: j })
 					
 					swap(arr, i, j)
@@ -130,16 +134,17 @@ export const quicksort = (arr, descending) => {
 			
 			sequence.push({ type: 'swap', index1: l, index2: i - 1 })
 			swap(arr, l, i - 1)
+			sequence.push({ type: 'status', idx: i - 1, before: UNSORTED, after: SORTED })
 			
 			return i - 1
 		} else {
-			const pivot = arr[l] // 1st element
+			const pivot = arr[l].value // 1st element
 			let i = l + 1
 			
 			for (let j = i; j <= r; j++) {
 				sequence.push({ type: 'comparison', index1: j, index2: l, operator: '>' })
 				
-				if (arr[j] > pivot) {
+				if (arr[j].value > pivot) {
 					sequence.push({ type: 'swap', index1: i, index2: j })
 					
 					swap(arr, i, j)
@@ -149,6 +154,7 @@ export const quicksort = (arr, descending) => {
 			
 			sequence.push({ type: 'swap', index1: l, index2: i - 1 })
 			swap(arr, l, i - 1)
+			sequence.push({ type: 'status', idx: i - 1, before: UNSORTED, after: SORTED })
 			
 			return i - 1
 		}
@@ -173,6 +179,8 @@ export const quicksort = (arr, descending) => {
 			const p = partition(arr, l, r); //index returned from partition
 			sort(arr, l, p - 1)
 			sort(arr, p + 1, r)
+		} else if (l == r) {
+			sequence.push({ type: 'status', idx: l, before: UNSORTED, after: SORTED })
 		}
 		
 		return arr;
@@ -193,22 +201,26 @@ export const insertionsort = (arr, descending) => {
 	
 	if (!descending) {
 		for (let i = 1; i < copy.length; i++) {
-			for (let j = i; j >= 0 && copy[j - 1] > copy[j]; j--) {
+			for (let j = i; j > 0 && copy[j - 1].value > copy[j].value; j--) {
 				sequence.push({ type: 'comparison', index1: j - 1, index2: j, operator: '>' })
 				
 				sequence.push({ type: 'swap', index1: j - 1, index2: j })
 					
 				swap(copy, j, j - 1)
+				
+				sequence.push({ type: 'status', idx: j - 1, before: UNSORTED, after: SORTED })
 			}
 		}
 	} else {
 		for (let i = 1; i < copy.length; i++) {
-			for (let j = i; j >= 0 && copy[j - 1] < copy[j]; j--) {
+			for (let j = i; j > 0 && copy[j - 1].value < copy[j].value; j--) {
 				sequence.push({ type: 'comparison', index1: j - 1, index2: j, operator: '<' })
 				
 				sequence.push({ type: 'swap', index1: j - 1, index2: j })
 					
 				swap(copy, j, j - 1)
+				
+				sequence.push({ type: 'status', idx: j - 1, before: UNSORTED, after: SORTED })
 			}
 		}
 	}
@@ -231,7 +243,7 @@ export const selectionsort = (arr, descending) => {
 			for (let j = i + 1; j < copy.length; j++) {
 				sequence.push({ type: 'comparison', index1: j, index2: min, operator: '<' })
 				
-				if (copy[j] < copy[min]) {
+				if (copy[j].value < copy[min].value) {
 					min = j
 				}
 			}
@@ -239,7 +251,7 @@ export const selectionsort = (arr, descending) => {
 			for (let j = i + 1; j < copy.length; j++) {
 				sequence.push({ type: 'comparison', index1: j, index2: min, operator: '>' })
 				
-				if (copy[j] > copy[min]) {
+				if (copy[j].value > copy[min].value) {
 					min = j
 				}
 			}
@@ -249,6 +261,8 @@ export const selectionsort = (arr, descending) => {
 		sequence.push({ type: 'swap', index1: i, index2: min })
 		
 		swap(copy, i, min)
+		
+		sequence.push({ type: 'status', idx: i, before: UNSORTED, after: SORTED })
 	}
 	
 	sequence.push({ type: 'end' })
