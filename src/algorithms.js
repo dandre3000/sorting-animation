@@ -203,6 +203,94 @@ export const quicksort = (arr, descending) => {
 	return sequence
 }
 
+export const randomquicksort = (arr, descending) => {
+	const copy = cleanArrayClone(arr)
+	
+	const sequence = [{ type: 'genesis' }]
+	sequence.index = 0
+	
+	const pivotIdx = (arr, l, r) => {
+		let idx = l
+		do {
+			idx = l + Math.round(Math.random() * (r - l)) // random element
+		} while (arr[idx].status == SORTED)
+		
+		return idx
+	}
+	
+	const partition = (arr, l, r) => {
+		if (!descending) {
+			const idx = pivotIdx(arr, l, r)
+			const pivot = arr[idx].value
+			
+			let i = l + 1
+			
+			sequence.push({ type: 'swap', index1: idx, index2: l })
+			swap(arr, idx, l)
+			
+			for (let j = i; j <= r; j++) {
+				sequence.push({ type: 'comparison', index1: j, index2: l, operator: '<' })
+				
+				if (arr[j].value < pivot) {
+					sequence.push({ type: 'swap', index1: i, index2: j })
+					
+					swap(arr, i, j)
+					i++
+				}
+			}
+			
+			sequence.push({ type: 'swap', index1: l, index2: i - 1 })
+			swap(arr, l, i - 1)
+			sequence.push({ type: 'status', idx: i - 1, before: UNSORTED, after: SORTED })
+			
+			return i - 1
+		} else {
+			const idx = pivotIdx(arr, l, r)
+			const pivot = arr[idx].value
+			
+			let i = l + 1
+			
+			sequence.push({ type: 'swap', index1: idx, index2: l })
+			swap(arr, idx, l)
+			
+			for (let j = i; j <= r; j++) {
+				sequence.push({ type: 'comparison', index1: j, index2: l, operator: '>' })
+				
+				if (arr[j].value > pivot) {
+					sequence.push({ type: 'swap', index1: i, index2: j })
+					
+					swap(arr, i, j)
+					i++
+				}
+			}
+			
+			sequence.push({ type: 'swap', index1: l, index2: i - 1 })
+			swap(arr, l, i - 1)
+			sequence.push({ type: 'status', idx: i - 1, before: UNSORTED, after: SORTED })
+			
+			return i - 1
+		}
+	}
+	
+	const sort = (arr, l, r) => {
+		if (l < r) {
+			const p = partition(arr, l, r); //index returned from partition
+			sort(arr, l, p - 1)
+			sort(arr, p + 1, r)
+		} else if (l == r) {
+			sequence.push({ type: 'status', idx: l, before: UNSORTED, after: SORTED })
+		}
+		
+		return arr;
+	}
+	
+	sort(copy, 0, copy.length - 1)
+	
+	sequence.push({ type: 'end' })
+	
+	return sequence
+}
+
 export const insertionsort = (arr, descending) => {
 	const copy = cleanArrayClone(arr)
 	
