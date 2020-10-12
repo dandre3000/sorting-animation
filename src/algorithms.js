@@ -27,10 +27,20 @@ const swap = (arr, idx1, idx2) => {
 	arr[idx2] = a
 }
 
+const cleanArrayClone = (arr) => {
+	const copy = [].concat(arr)
+	
+	copy.forEach(e => {
+		e.status = 0
+	})
+	
+	return copy
+}
+
 export const bubblesort = (arr, descending) => {
 	// if (!isNumberArray(arr)) throw new TypeError('arr must be an array of all numbers')
 
-	const copy = [].concat(arr)
+	const copy = cleanArrayClone(arr)
 	
 	let swapped = false
 	let j = copy.length - 1
@@ -84,7 +94,7 @@ export const bubblesort = (arr, descending) => {
 
 
 export const quicksort = (arr, descending) => {
-	const copy = [].concat(arr)
+	const copy = cleanArrayClone(arr)
 	
 	const sequence = [{ type: 'genesis' }]
 	sequence.index = 0
@@ -194,7 +204,7 @@ export const quicksort = (arr, descending) => {
 }
 
 export const insertionsort = (arr, descending) => {
-	const copy = [].concat(arr)
+	const copy = cleanArrayClone(arr)
 	
 	const sequence = [{ type: 'genesis' }]
 	sequence.index = 0
@@ -231,7 +241,7 @@ export const insertionsort = (arr, descending) => {
 }
 
 export const selectionsort = (arr, descending) => {
-	const copy = [].concat(arr)
+	const copy = cleanArrayClone(arr)
 	
 	const sequence = [{ type: 'genesis' }]
 	sequence.index = 0

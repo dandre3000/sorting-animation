@@ -24,7 +24,7 @@
 		methods: {
 			setSort(name) {
 				this.$store.commit('setSort', name)
-				this.$store.commit('setSequence', null)
+				this.$store.commit('setSequence', this.$store.state.sort(this.$store.state.array, this.$store.state.descending))
 			}
 		}
 	}

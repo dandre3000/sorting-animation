@@ -110,7 +110,6 @@ const actions = {
 		return state.mainBtn == 1
 	},
 	toggleDescending({ commit }) {
-		stop()
 		commit('toggleDescending')
 		commit('setSequence', state.sort(state.array, state.descending))
 	}
