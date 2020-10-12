@@ -2,6 +2,7 @@
 	<div>
 		<canvas id='array-display'></canvas>
 		<div>
+			<p>{{ $store.state.sort.name }}</p>
 			<button @click='first' :disabled='isDisabled()'><img src='assets/images/first.png'></button>
 			<button @click='previous' :disabled='isDisabled()'><img src='assets/images/previous.png'></button>
 			<button id='play' @click='play'>
