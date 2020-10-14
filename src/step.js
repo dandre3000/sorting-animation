@@ -31,6 +31,9 @@ export const step = n => {
 				let {index1, index2} = sequence[i]
 				
 				swap(tmpArray, index1, index2)
+				sequence.swaps--
+			} else if (sequence[i].type == 'comparison') {
+				sequence.comparisons--
 			} else if (sequence[i].type == 'status') {
 				tmpArray[sequence[i].idx].status = sequence[i].before
 			}
@@ -43,6 +46,9 @@ export const step = n => {
 				let {index1, index2} = sequence[i]
 				
 				swap(tmpArray, index1, index2)
+				sequence.swaps++
+			} else if (sequence[i].type == 'comparison') {
+				sequence.comparisons++
 			} else if (sequence[i].type == 'status') {
 				tmpArray[sequence[i].idx].status = sequence[i].after
 			}

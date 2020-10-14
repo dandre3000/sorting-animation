@@ -37,47 +37,41 @@ const cleanArrayClone = (arr) => {
 	return copy
 }
 
+const newSequence = () => {
+	const s = [{ type: 'genesis' }]
+	s.index = 0
+	s.comparisons = 0
+	s.swaps = 0
+	
+	return s
+}
+
 export const bubblesort = (arr, descending) => {
 	// if (!isNumberArray(arr)) throw new TypeError('arr must be an array of all numbers')
 
 	const copy = cleanArrayClone(arr)
 	
+	const sequence = newSequence()
+	
 	let swapped = false
 	let j = copy.length - 1
 	
-	const sequence = [{ type: 'genesis' }]
-	sequence.index = 0
+	
 	
 	do {
 		swapped = false
 		
-		if (!descending) {
-			for (let i = 0; i < j; i++) {
-				const a = copy[i].value
-				const b = copy[i + 1].value
-				
-				sequence.push({ type: 'comparison', index1: i, index2: i + 1 })
-				
-				if (a > b) {
-					swap(copy, i, i + 1)
-					swapped = true
-					
-					sequence.push({ type: 'swap', index1: i, index2: i + 1 })
-				}
-			}
-		} else {
-			for (let i = 0; i < j; i++) {
-				const a = copy[i].value
-				const b = copy[i + 1].value
-				
-				sequence.push({ type: 'comparison', index1: i, index2: i + 1 })
-				
-				if (a < b) {
-					swap(copy, i, i + 1)
-					swapped = true
+		for (let i = 0; i < j; i++) {
+			const a = copy[i].value
+			const b = copy[i + 1].value
+			
+			sequence.push({ type: 'comparison', index1: i, index2: i + 1 })
+			
+			if (descending && a < b || !descending && a > b) {
+				swap(copy, i, i + 1)
+				swapped = true
 
-					sequence.push({ type: 'swap', index1: i, index2: i + 1 })
-				}
+				sequence.push({ type: 'swap', index1: i + 1, index2: i })
 			}
 		}
 		
@@ -96,8 +90,7 @@ export const bubblesort = (arr, descending) => {
 export const quicksort = (arr, descending) => {
 	const copy = cleanArrayClone(arr)
 	
-	const sequence = [{ type: 'genesis' }]
-	sequence.index = 0
+	const sequence = newSequence()
 	
 	/* function altPartition(items, left, right) {
 		var pivot   = items[Math.floor((right + left) / 2)], //middle element
@@ -127,47 +120,28 @@ export const quicksort = (arr, descending) => {
 	} */
 	
 	const partition = (arr, l, r) => {
-		if (!descending) {
-			const pivot = arr[l].value // 1st element
-			let i = l + 1
+		const pivot = arr[l].value // 1st element
+		let i = l + 1
+		
+		for (let j = i; j <= r; j++) {
+			sequence.push({ type: 'comparison', index1: j, index2: l, operator: '<' })
 			
-			for (let j = i; j <= r; j++) {
-				sequence.push({ type: 'comparison', index1: j, index2: l, operator: '<' })
-				
-				if (arr[j].value < pivot) {
+			if (!descending && arr[j].value < pivot || descending && arr[j].value > pivot) {
+				if (j != i) {
 					sequence.push({ type: 'swap', index1: i, index2: j })
 					
 					swap(arr, i, j)
-					i++
 				}
-			}
-			
-			sequence.push({ type: 'swap', index1: l, index2: i - 1 })
-			swap(arr, l, i - 1)
-			sequence.push({ type: 'status', idx: i - 1, before: UNSORTED, after: SORTED })
-			
-			return i - 1
-		} else {
-			const pivot = arr[l].value // 1st element
-			let i = l + 1
-			
-			for (let j = i; j <= r; j++) {
-				sequence.push({ type: 'comparison', index1: j, index2: l, operator: '>' })
 				
-				if (arr[j].value > pivot) {
-					sequence.push({ type: 'swap', index1: i, index2: j })
-					
-					swap(arr, i, j)
-					i++
-				}
+				i++
 			}
-			
-			sequence.push({ type: 'swap', index1: l, index2: i - 1 })
-			swap(arr, l, i - 1)
-			sequence.push({ type: 'status', idx: i - 1, before: UNSORTED, after: SORTED })
-			
-			return i - 1
 		}
+		
+		sequence.push({ type: 'swap', index1: i - 1, index2: l })
+		swap(arr, l, i - 1)
+		sequence.push({ type: 'status', idx: i - 1, before: UNSORTED, after: SORTED })
+		
+		return i - 1
 	}
 
 	/* function sort(items, left, right) {
@@ -206,8 +180,7 @@ export const quicksort = (arr, descending) => {
 export const randomquicksort = (arr, descending) => {
 	const copy = cleanArrayClone(arr)
 	
-	const sequence = [{ type: 'genesis' }]
-	sequence.index = 0
+	const sequence = newSequence()
 	
 	const pivotIdx = (arr, l, r) => {
 		let idx = l
@@ -219,57 +192,33 @@ export const randomquicksort = (arr, descending) => {
 	}
 	
 	const partition = (arr, l, r) => {
-		if (!descending) {
-			const idx = pivotIdx(arr, l, r)
-			const pivot = arr[idx].value
+		const idx = pivotIdx(arr, l, r)
+		const pivot = arr[idx].value
+		
+		let i = l + 1
+		
+		sequence.push({ type: 'swap', index1: idx, index2: l })
+		swap(arr, idx, l)
+		
+		for (let j = i; j <= r; j++) {
+			sequence.push({ type: 'comparison', index1: j, index2: l, operator: '<' })
 			
-			let i = l + 1
-			
-			sequence.push({ type: 'swap', index1: idx, index2: l })
-			swap(arr, idx, l)
-			
-			for (let j = i; j <= r; j++) {
-				sequence.push({ type: 'comparison', index1: j, index2: l, operator: '<' })
-				
-				if (arr[j].value < pivot) {
+			if (!descending && arr[j].value < pivot || descending && arr[j].value > pivot) {
+				if (j != i) {
 					sequence.push({ type: 'swap', index1: i, index2: j })
 					
 					swap(arr, i, j)
-					i++
 				}
-			}
-			
-			sequence.push({ type: 'swap', index1: l, index2: i - 1 })
-			swap(arr, l, i - 1)
-			sequence.push({ type: 'status', idx: i - 1, before: UNSORTED, after: SORTED })
-			
-			return i - 1
-		} else {
-			const idx = pivotIdx(arr, l, r)
-			const pivot = arr[idx].value
-			
-			let i = l + 1
-			
-			sequence.push({ type: 'swap', index1: idx, index2: l })
-			swap(arr, idx, l)
-			
-			for (let j = i; j <= r; j++) {
-				sequence.push({ type: 'comparison', index1: j, index2: l, operator: '>' })
 				
-				if (arr[j].value > pivot) {
-					sequence.push({ type: 'swap', index1: i, index2: j })
-					
-					swap(arr, i, j)
-					i++
-				}
+				i++
 			}
-			
-			sequence.push({ type: 'swap', index1: l, index2: i - 1 })
-			swap(arr, l, i - 1)
-			sequence.push({ type: 'status', idx: i - 1, before: UNSORTED, after: SORTED })
-			
-			return i - 1
 		}
+		
+		sequence.push({ type: 'swap', index1: l, index2: i - 1 })
+		swap(arr, l, i - 1)
+		sequence.push({ type: 'status', idx: i - 1, before: UNSORTED, after: SORTED })
+		
+		return i - 1
 	}
 	
 	const sort = (arr, l, r) => {
@@ -294,13 +243,12 @@ export const randomquicksort = (arr, descending) => {
 export const insertionsort = (arr, descending) => {
 	const copy = cleanArrayClone(arr)
 	
-	const sequence = [{ type: 'genesis' }]
-	sequence.index = 0
+	const sequence = newSequence()
 	
 	if (!descending) {
 		for (let i = 1; i < copy.length; i++) {
 			for (let j = i; j > 0 && copy[j - 1].value > copy[j].value; j--) {
-				sequence.push({ type: 'comparison', index1: j - 1, index2: j, operator: '>' })
+				sequence.push({ type: 'comparison', index1: j, index2: j - 1, operator: '>' })
 				
 				sequence.push({ type: 'swap', index1: j - 1, index2: j })
 					
@@ -312,10 +260,10 @@ export const insertionsort = (arr, descending) => {
 	} else {
 		for (let i = 1; i < copy.length; i++) {
 			for (let j = i; j > 0 && copy[j - 1].value < copy[j].value; j--) {
-				sequence.push({ type: 'comparison', index1: j - 1, index2: j, operator: '<' })
+				sequence.push({ type: 'comparison', index1: j, index2: j - 1, operator: '<' })
 				
 				sequence.push({ type: 'swap', index1: j - 1, index2: j })
-					
+				
 				swap(copy, j, j - 1)
 				
 				sequence.push({ type: 'status', idx: j - 1, before: UNSORTED, after: SORTED })
@@ -331,8 +279,7 @@ export const insertionsort = (arr, descending) => {
 export const selectionsort = (arr, descending) => {
 	const copy = cleanArrayClone(arr)
 	
-	const sequence = [{ type: 'genesis' }]
-	sequence.index = 0
+	const sequence = newSequence()
 	
 	for (let i = 0; i < copy.length - 1; i++) {
 		let min = i

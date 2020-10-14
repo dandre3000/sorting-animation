@@ -1,5 +1,5 @@
 import store from './store'
-import { SORTED, UNSORTED } from './Bar'
+import { SORTED } from './Bar'
 
 export const render = () => {
 	const array = store.state.array
@@ -14,27 +14,31 @@ export const render = () => {
 	
 	const barW = canv.width / (array.length * 2)
 	array.forEach((bar, i) => {
-		ctx.fillStyle = 'white'
-		
-		
+		ctx.fillStyle = bar.status == SORTED? 'green' : 'white'
 		
 		if (sequence) {
 			const step = sequence[sequence.index]
 			
 			if (step.type == 'comparison' || step.type == 'swap') {
 				const {index1, index2} = step
-				if (i == index1 || i == index2) {
+				if (i == index1) {
+					ctx.fillStyle = 'red'
+				} else if (i == index2) {
 					ctx.fillStyle = 'blue'
 				}
-			} else if (step.type == 'genesis') {
+			} /* else if (step.type == 'genesis') {
 				bar.status =  UNSORTED
 			} else if (step.type == 'end') {
 				bar.status =  SORTED
-			}
+			} */
 		}
 		
-		if (bar.status == SORTED) ctx.fillStyle = 'green'
+		
 		
 		ctx.fillRect(i * barW * 2 + barW / 2, canv.height, barW, -bar.value * (canv.height / 100))
 	})
+	
+	ctx.fillStyle = 'white'
+	ctx.fillText(`Comparisons: ${sequence? sequence.comparisons : 0}`, 16, 16)
+	ctx.fillText(`Swaps: ${sequence? sequence.swaps : 0}`, 16, 32)
 }
