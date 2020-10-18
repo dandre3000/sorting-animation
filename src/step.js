@@ -32,6 +32,11 @@ export const step = n => {
 				
 				swap(tmpArray, index1, index2)
 				sequence.swaps--
+			} else if (sequence[i].type == 'splice') {
+				let {index1, index2} = sequence[i]
+				let t = tmpArray.splice(index2, 1)[0]
+				tmpArray.splice(index1, 0, t)
+				sequence.swaps--
 			} else if (sequence[i].type == 'comparison') {
 				sequence.comparisons--
 			} else if (sequence[i].type == 'status') {
@@ -46,6 +51,11 @@ export const step = n => {
 				let {index1, index2} = sequence[i]
 				
 				swap(tmpArray, index1, index2)
+				sequence.swaps++
+			} else if (sequence[i].type == 'splice') {
+				let {index1, index2} = sequence[i]
+				let t = tmpArray.splice(index1, 1)[0]
+				tmpArray.splice(index2, 0, t)
 				sequence.swaps++
 			} else if (sequence[i].type == 'comparison') {
 				sequence.comparisons++

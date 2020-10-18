@@ -19,7 +19,7 @@ export const render = () => {
 		if (sequence) {
 			const step = sequence[sequence.index]
 			
-			if (step.type == 'comparison' || step.type == 'swap') {
+			if (step.type == 'comparison' || step.type == 'swap' || step.type == 'splice') {
 				const {index1, index2} = step
 				if (i == index1) {
 					ctx.fillStyle = 'red'

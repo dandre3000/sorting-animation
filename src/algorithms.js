@@ -314,3 +314,70 @@ export const selectionsort = (arr, descending) => {
 	
 	return sequence
 }
+
+export const mergesort = arr => {
+	const merge = (l, r, i) => {
+		const result = []
+		let lIdx = i
+		let rIdx = i + l.length
+		
+		while (l.length > 0 && r.length > 0) {
+			sequence.push({ type: 'comparison', index1: lIdx, index2: rIdx })
+			if (l[0].value <= r[0].value) {
+				if (lIdx != i) sequence.push({ type: 'splice', index1: lIdx, index2: i })
+				
+				result.push(l.shift())
+				
+				lIdx++
+			} else {
+				if (rIdx != i) sequence.push({ type: 'splice', index1: rIdx, index2: i })
+				
+				result.push(r.shift())
+				
+				lIdx++
+				rIdx++
+			}
+			
+			i++
+		}
+		
+		while (l.length > 0) {
+			result.push(l.shift())
+		}
+		while (r.length > 0) {
+			result.push(r.shift())
+		}
+		
+		return result
+	}
+
+	const sort = (arr, i) => {
+		if (arr.length <= 1) return arr
+		
+		let l = []
+		let r = []
+		
+		arr.forEach((n, i) => {
+			if (i < arr.length / 2) {
+				l.push(n)
+			} else {
+				r.push(n)
+			}
+		})
+		
+		l = sort(l, i)
+		r = sort(r, i + l.length)
+		
+		return merge(l, r, i)
+	}
+	
+	const copy = cleanArrayClone(arr)
+	
+	const sequence = newSequence()
+	
+	sort(copy, 0)
+	
+	sequence.push({ type: 'end' })
+	
+	return sequence
+}
