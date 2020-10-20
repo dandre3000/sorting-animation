@@ -23,7 +23,7 @@
 <script>
 	import { mapActions } from 'vuex'
 	import { bubbleSort } from './algorithms.js'
-	import { start, stop, setStore, step } from './timeStep.js'
+	import { start, stop, step } from './timeStep.js'
 	
 	export default {
 		methods: {
@@ -65,7 +65,6 @@
 				$s.dispatch('setCanvas', document.querySelector('#array-display'))
 			})
 			
-			setStore($s)
 			window.display = this
 		}
 	}
