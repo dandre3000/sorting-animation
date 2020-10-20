@@ -56,7 +56,7 @@ const actions = {
 		}
 		
 		step(-99999)
-		commit('mainBtn', 0)
+		stop()
 	},
 	previous({ commit }) {
 		if (!state.sequence) {
@@ -64,7 +64,7 @@ const actions = {
 		}
 		
 		step(-1)
-		commit('mainBtn', 0)
+		stop()
 	},
 	play({ commit }) {
 		if (!state.sequence) {
@@ -72,9 +72,11 @@ const actions = {
 		}
 		
 		start()
+		// commit('mainBtn', 1)
 	},
 	pause() {
 		stop()
+		// commit('mainBtn', 0)
 	},
 	restart({ commit }) {
 		if (!state.sequence) {
@@ -83,6 +85,7 @@ const actions = {
 		
 		step(-99999)
 		start()
+		// commit('mainBtn', 1)
 	},
 	next({ commit }) {
 		if (!state.sequence) {
@@ -91,9 +94,8 @@ const actions = {
 		
 		step(1)
 		
-		if (state.sequence.index == state.sequence.length - 1) {
-			commit('mainBtn', 2)
-		}
+		const end = state.sequence.index == state.sequence.length - 1
+		stop(end)
 	},
 	last({ commit }) {
 		if (!state.sequence) {
@@ -101,7 +103,7 @@ const actions = {
 		}
 		
 		step(99999)
-		commit('mainBtn', 2)
+		stop(true)
 	},
 	setFps({ commit }, value) {
 		commit('setFps', value)
