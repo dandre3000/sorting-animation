@@ -1,5 +1,6 @@
 // import {render} from './render'
-import {step} from './step'
+import { step } from './step'
+import store from './store'
 
 // const TARGET_FRAME_RATE = 60
 // const UPDATE_INTERVAL = 1000 / TARGET_FRAME_RATE
@@ -9,15 +10,11 @@ let accumulator = 0
 let lastTime = 0
 let req = 0
 export let running = false
-let store
-
-export const setStore = s => {
-	store = s
-}
 
 // frame rate independent loop
 export const timeStep = () => {
-	const dt = 1000 / store.state.fps
+	const state = store.state
+	const dt = 1000 / state.fps
 	let time = window.performance.now()
 	let frameTime = lastTime == 0? 0 : time - lastTime
 	
@@ -35,43 +32,37 @@ export const timeStep = () => {
 	
 	// render()
 	
-	req = requestAnimationFrame(timeStep)
-	
-	const state = store.state
-	if (state.sequence.index == state.sequence.length - 1) {
-		console.log('stop')
-		
-		stop()
-		state.mainBtn = 2
+	if (state.mainBtn == 1 && state.sequence.index == state.sequence.length - 1) {
+		stop(true)
+	} else {
+		req = requestAnimationFrame(timeStep)
 	}
+	
 }
 
 export const start = () => {
-	const state = store.state
-	
 	if (req === 0) {
-		if (state.sequence) {
-			lastTime = 0
-			req = requestAnimationFrame(timeStep)
-			running = true
-			store.state.mainBtn = 1
-		} else {
-			console.warn('No-op: array has not been sorted')
-		}
+		lastTime = 0
+		req = requestAnimationFrame(timeStep)
+		running = true
+		store.commit('mainBtn', 1)
 	} else {
 		throw new Error('timeStep is already running: cannot start another animation frame request')
 	}
 }
 
-export const stop = () => {
+export const stop = (end = false) => {
 	if (req === 0) {
 		console.warn('No-op: timeStep is not running')
 	} else {
 		cancelAnimationFrame(req)
 		req = 0
 		running = false
-		store.state.mainBtn = 0
+	}
+	
+	if (end) {
+		store.commit('mainBtn', 2)
+	} else {
+		store.commit('mainBtn', 0)
 	}
 }
-
-export { step }
