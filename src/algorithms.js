@@ -245,28 +245,21 @@ export const insertionsort = (arr, descending) => {
 	
 	const sequence = newSequence()
 	
-	if (!descending) {
-		for (let i = 1; i < copy.length; i++) {
-			for (let j = i; j > 0 && copy[j - 1].value > copy[j].value; j--) {
-				sequence.push({ type: 'comparison', index1: j, index2: j - 1, operator: '>' })
-				
-				sequence.push({ type: 'swap', index1: j - 1, index2: j })
-					
-				swap(copy, j, j - 1)
-				
-				sequence.push({ type: 'status', idx: j - 1, before: UNSORTED, after: SORTED })
-			}
-		}
-	} else {
-		for (let i = 1; i < copy.length; i++) {
-			for (let j = i; j > 0 && copy[j - 1].value < copy[j].value; j--) {
-				sequence.push({ type: 'comparison', index1: j, index2: j - 1, operator: '<' })
-				
+	sequence.push({ type: 'status', idx: 0, before: copy[0].status, after: SORTED })
+	
+	for (let i = 1; i < copy.length; i++) {
+		for (let j = i; j > 0; j--) {
+			sequence.push({ type: 'comparison', index1: j, index2: j - 1 })
+			
+			if (!descending && copy[j - 1].value > copy[j].value || descending && copy[j - 1].value < copy[j].value) {
 				sequence.push({ type: 'swap', index1: j - 1, index2: j })
 				
 				swap(copy, j, j - 1)
 				
-				sequence.push({ type: 'status', idx: j - 1, before: UNSORTED, after: SORTED })
+				sequence.push({ type: 'status', idx: j, before: copy[j].status, after: SORTED })
+			} else {
+				sequence.push({ type: 'status', idx: j - 1, before: copy[j - 1].status, after: SORTED })
+				break
 			}
 		}
 	}
@@ -286,7 +279,7 @@ export const selectionsort = (arr, descending) => {
 		
 		if (!descending) {
 			for (let j = i + 1; j < copy.length; j++) {
-				sequence.push({ type: 'comparison', index1: j, index2: min, operator: '<' })
+				sequence.push({ type: 'comparison', index1: min, index2: j })
 				
 				if (copy[j].value < copy[min].value) {
 					min = j
@@ -294,7 +287,7 @@ export const selectionsort = (arr, descending) => {
 			}
 		} else {
 			for (let j = i + 1; j < copy.length; j++) {
-				sequence.push({ type: 'comparison', index1: j, index2: min, operator: '>' })
+				sequence.push({ type: 'comparison', index1: min, index2: j })
 				
 				if (copy[j].value > copy[min].value) {
 					min = j
@@ -303,6 +296,7 @@ export const selectionsort = (arr, descending) => {
 
 		}
 		
+		sequence.push({ type: 'comparison', index1: min, index2: i })
 		sequence.push({ type: 'swap', index1: i, index2: min })
 		
 		swap(copy, i, min)
