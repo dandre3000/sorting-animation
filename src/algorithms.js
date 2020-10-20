@@ -309,7 +309,7 @@ export const selectionsort = (arr, descending) => {
 	return sequence
 }
 
-export const mergesort = arr => {
+export const mergesort = (arr, descending) => {
 	const merge = (l, r, i) => {
 		const result = []
 		let lIdx = i
@@ -317,7 +317,7 @@ export const mergesort = arr => {
 		
 		while (l.length > 0 && r.length > 0) {
 			sequence.push({ type: 'comparison', index1: lIdx, index2: rIdx })
-			if (l[0].value <= r[0].value) {
+			if (!descending && l[0].value <= r[0].value || descending && l[0].value >= r[0].value) {
 				if (lIdx != i) sequence.push({ type: 'splice', index1: lIdx, index2: i })
 				
 				result.push(l.shift())
