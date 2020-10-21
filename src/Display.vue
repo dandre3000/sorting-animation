@@ -3,15 +3,15 @@
 		<canvas id='array-display'></canvas>
 		<div>
 			<p>{{ $store.state.sort.name }}</p>
-			<button @click='first' :disabled='isDisabled()'><img src='assets/images/first.png'></button>
-			<button @click='previous' :disabled='isDisabled()'><img src='assets/images/previous.png'></button>
+			<button @click='first'><img src='assets/images/first.png'></button>
+			<button @click='previous'><img src='assets/images/previous.png'></button>
 			<button id='play' @click='play'>
 				<img src='assets/images/play.png' v-if="this.$store.state.mainBtn == 0">
 				<img src='assets/images/pause.png' v-else-if="this.$store.state.mainBtn == 1">
 				<img src='assets/images/restart.png' v-else>
 			</button>
-			<button @click='next' :disabled='isDisabled()'><img src='assets/images/next.png'></button>
-			<button @click='last' :disabled='isDisabled()'><img src='assets/images/last.png'></button>
+			<button @click='next'><img src='assets/images/next.png'></button>
+			<button @click='last'><img src='assets/images/last.png'></button>
 			<input id='descending' @input="toggleDescending" type="checkbox"><label for="descending">Descending</label>
 		</div>
 		<div class='row'>
@@ -51,9 +51,6 @@
 			setFps() {
 				this.$store.dispatch('setFps', document.querySelector('#fps').value)
 			},
-			isDisabled() {
-				this.$store.dispatch('isDisabled')
-			},
 			toggleDescending() {
 				this.$store.dispatch('toggleDescending')
 			}
@@ -62,7 +59,7 @@
 			const $s = this.$store
 			
 			this.$nextTick(function () {
-				$s.dispatch('setCanvas', document.querySelector('#array-display'))
+				$s.commit('setCanvas', document.querySelector('#array-display'))
 			})
 			
 			window.display = this
