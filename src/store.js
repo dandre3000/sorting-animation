@@ -8,8 +8,8 @@ import { start, stop } from './timeStep.js'
 Vue.use(Vuex)
 
 export const state = {
-	array: [1, 2, 3, 4, 5],
-	sequence: null,
+	array: [],
+	sequence: [],
 	canvas: null,
 	sort: algorithms['quicksort'],
 	mainBtn: 0,
@@ -21,8 +21,8 @@ const mutations = {
 	setArray(state, arr) {
 		state.array = arr
 	},
-	setSequence(state, arr) {
-		state.sequence = arr
+	setSequence(state) {
+		state.sequence = state.sort(state.array, state.descending)
 	},
 	setCanvas(state, canv) {
 		state.canvas = canv
@@ -46,70 +46,45 @@ const actions = {
 		commit('setArray', arr)
 		render()
 	},
-	setCanvas: ({ commit }, canv) => {
-		commit('setCanvas', canv)
+	setSequence({ commit }, arr) {
+		commit('setArray', arr)
+		commit('setSequence')
 		render()
 	},
-	first({ commit }) {
-		if (!state.sequence) {
-			commit('setSequence', state.sort(state.array, state.descending))
-		}
-		
+	setCanvas: ({ commit }, canv) => {
+		commit('setCanvas', canv)
+		// render()
+	},
+	first() {
 		step(-99999)
 		stop()
 	},
-	previous({ commit }) {
-		if (!state.sequence) {
-			commit('setSequence', state.sort(state.array, state.descending))
-		}
-		
+	previous() {
 		step(-1)
 		stop()
 	},
-	play({ commit }) {
-		if (!state.sequence) {
-			commit('setSequence', state.sort(state.array, state.descending))
-		}
-		
+	play() {
 		start()
-		// commit('mainBtn', 1)
 	},
 	pause() {
 		stop()
-		// commit('mainBtn', 0)
 	},
-	restart({ commit }) {
-		if (!state.sequence) {
-			commit('setSequence', state.sort(state.array, state.descending))
-		}
-		
+	restart() {
 		step(-99999)
 		start()
-		// commit('mainBtn', 1)
 	},
-	next({ commit }) {
-		if (!state.sequence) {
-			commit('setSequence', state.sort(state.array, state.descending))
-		}
-		
+	next() {
 		step(1)
 		
 		const end = state.sequence.index == state.sequence.length - 1
 		stop(end)
 	},
-	last({ commit }) {
-		if (!state.sequence) {
-			commit('setSequence', state.sort(state.array, state.descending))
-		}
-		
+	last() {
 		step(99999)
 		stop(true)
 	},
 	setFps({ commit }, value) {
 		commit('setFps', value)
-	},
-	isDisabled() {
-		return state.mainBtn == 1
 	},
 	toggleDescending({ commit }) {
 		commit('toggleDescending')
