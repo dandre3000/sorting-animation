@@ -1,4 +1,4 @@
-import { SORTED, UNSORTED } from './Bar'
+import { SORTED, UNSORTED, PIVOT } from './Bar'
 
 /* const isNumberArray = arr => {
 	if (arr instanceof Array == false) return false
@@ -18,7 +18,7 @@ import { SORTED, UNSORTED } from './Bar'
 	return true
 } */
 
-const swap = (arr, idx1, idx2) => {
+export const swap = (arr, idx1, idx2) => {
 	if (idx1 == idx2) return
 	
 	const a = arr[idx1]
@@ -31,7 +31,7 @@ const cleanArrayClone = (arr) => {
 	const copy = [].concat(arr)
 	
 	copy.forEach(e => {
-		e.status = 0
+		e.status = UNSORTED
 	})
 	
 	return copy
@@ -75,7 +75,14 @@ export const bubblesort = (arr, descending) => {
 			}
 		}
 		
-		sequence.push({ type: 'status', idx: j, before: UNSORTED, after: SORTED })
+		sequence.push({
+			type: 'status',
+			status: {
+				index: j,
+				before: copy[j].status,
+				after: SORTED
+			}
+		})
 		
 		j--
 	} while (swapped == true)
@@ -120,11 +127,20 @@ export const quicksort = (arr, descending) => {
 	} */
 	
 	const partition = (arr, l, r) => {
+		sequence.push({
+			type: 'status',
+			status: {
+				index: l,
+				before: arr[l].status,
+				after: PIVOT
+			}
+		})
+		
 		const pivot = arr[l].value // 1st element
 		let i = l + 1
 		
 		for (let j = i; j <= r; j++) {
-			sequence.push({ type: 'comparison', index1: j, index2: l, operator: '<' })
+			sequence.push({ type: 'comparison', index1: j, index2: i })
 			
 			if (!descending && arr[j].value < pivot || descending && arr[j].value > pivot) {
 				if (j != i) {
@@ -137,9 +153,23 @@ export const quicksort = (arr, descending) => {
 			}
 		}
 		
-		sequence.push({ type: 'swap', index1: i - 1, index2: l })
+		sequence.push({
+			type: 'comparison',
+			index1: l,
+			index2: i - 1
+		})
+		sequence.push({
+			type: 'swap',
+			index1: i - 1,
+			index2: l,
+			status: {
+				index: i - 1,
+				before: arr[i - 1].status,
+				after: SORTED
+			}
+		})
+		
 		swap(arr, l, i - 1)
-		sequence.push({ type: 'status', idx: i - 1, before: UNSORTED, after: SORTED })
 		
 		return i - 1
 	}
@@ -164,7 +194,14 @@ export const quicksort = (arr, descending) => {
 			sort(arr, l, p - 1)
 			sort(arr, p + 1, r)
 		} else if (l == r) {
-			sequence.push({ type: 'status', idx: l, before: UNSORTED, after: SORTED })
+			sequence.push({
+				type: 'status',
+				status: {
+					index: l,
+					before: arr[l].status,
+					after: SORTED
+				}
+			})
 		}
 		
 		return arr;
@@ -193,15 +230,27 @@ export const randomquicksort = (arr, descending) => {
 	
 	const partition = (arr, l, r) => {
 		const idx = pivotIdx(arr, l, r)
+		
+		sequence.push({
+			type: 'status',
+			status: {
+				index: idx,
+				before: arr[idx].status,
+				after: PIVOT
+			}
+		})
+		
 		const pivot = arr[idx].value
 		
 		let i = l + 1
 		
+		sequence.push({ type: 'comparison', index1: l, index2: idx })
 		sequence.push({ type: 'swap', index1: idx, index2: l })
+		
 		swap(arr, idx, l)
 		
 		for (let j = i; j <= r; j++) {
-			sequence.push({ type: 'comparison', index1: j, index2: l, operator: '<' })
+			sequence.push({ type: 'comparison', index1: j, index2: i })
 			
 			if (!descending && arr[j].value < pivot || descending && arr[j].value > pivot) {
 				if (j != i) {
@@ -214,9 +263,23 @@ export const randomquicksort = (arr, descending) => {
 			}
 		}
 		
-		sequence.push({ type: 'swap', index1: l, index2: i - 1 })
+		sequence.push({
+			type: 'comparison',
+			index1: l,
+			index2: i - 1
+		})
+		sequence.push({
+			type: 'swap',
+			index1: i - 1,
+			index2: l,
+			status: {
+				index: i - 1,
+				before: arr[i - 1].status,
+				after: SORTED
+			}
+		})
+		
 		swap(arr, l, i - 1)
-		sequence.push({ type: 'status', idx: i - 1, before: UNSORTED, after: SORTED })
 		
 		return i - 1
 	}
@@ -227,7 +290,14 @@ export const randomquicksort = (arr, descending) => {
 			sort(arr, l, p - 1)
 			sort(arr, p + 1, r)
 		} else if (l == r) {
-			sequence.push({ type: 'status', idx: l, before: UNSORTED, after: SORTED })
+			sequence.push({
+				type: 'status',
+				status: {
+					index: l,
+					before: arr[l].status,
+					after: SORTED
+				}
+			})
 		}
 		
 		return arr;
@@ -252,13 +322,27 @@ export const insertionsort = (arr, descending) => {
 			sequence.push({ type: 'comparison', index1: j, index2: j - 1 })
 			
 			if (!descending && copy[j - 1].value > copy[j].value || descending && copy[j - 1].value < copy[j].value) {
-				sequence.push({ type: 'swap', index1: j - 1, index2: j })
+				sequence.push({
+					type: 'swap',
+					index1: j - 1,
+					index2: j,
+					status: {
+						index: j,
+						before: arr[j].status,
+						after: SORTED
+					}
+				})
 				
 				swap(copy, j, j - 1)
-				
-				sequence.push({ type: 'status', idx: j, before: copy[j].status, after: SORTED })
 			} else {
-				sequence.push({ type: 'status', idx: j - 1, before: copy[j - 1].status, after: SORTED })
+				sequence.push({
+					type: 'status',
+					status: {
+						index: j - 1,
+						before: arr[j - 1].status,
+						after: SORTED
+					}
+				})
 				break
 			}
 		}
@@ -277,31 +361,27 @@ export const selectionsort = (arr, descending) => {
 	for (let i = 0; i < copy.length - 1; i++) {
 		let min = i
 		
-		if (!descending) {
-			for (let j = i + 1; j < copy.length; j++) {
-				sequence.push({ type: 'comparison', index1: min, index2: j })
-				
-				if (copy[j].value < copy[min].value) {
-					min = j
-				}
+		for (let j = i + 1; j < copy.length; j++) {
+			sequence.push({ type: 'comparison', index1: j, index2: min })
+			
+			if (!descending && copy[j].value < copy[min].value || descending && copy[j].value > copy[min].value) {
+				min = j
 			}
-		} else {
-			for (let j = i + 1; j < copy.length; j++) {
-				sequence.push({ type: 'comparison', index1: min, index2: j })
-				
-				if (copy[j].value > copy[min].value) {
-					min = j
-				}
-			}
-
 		}
 		
 		sequence.push({ type: 'comparison', index1: min, index2: i })
-		sequence.push({ type: 'swap', index1: i, index2: min })
+		sequence.push({
+			type: 'swap',
+			index1: i,
+			index2: min,
+			status: {
+				index: i,
+				before: arr[i].status,
+				after: SORTED
+			}
+		})
 		
 		swap(copy, i, min)
-		
-		sequence.push({ type: 'status', idx: i, before: UNSORTED, after: SORTED })
 	}
 	
 	sequence.push({ type: 'end' })
