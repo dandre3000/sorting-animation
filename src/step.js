@@ -1,16 +1,9 @@
+import { swap } from './algorithms'
 import store from './store'
-
-const swap = (arr, idx1, idx2) => {
-	const a = arr[idx1]
-	const b = arr[idx2]
-	
-	arr[idx2] = a
-	arr[idx1] = b
-}
 
 export const step = n => {
 	const sequence = store.state.sequence
-	if (!sequence) {
+	if (sequence.length < 1) {
 		return
 	}
 	
@@ -39,8 +32,10 @@ export const step = n => {
 				sequence.swaps--
 			} else if (sequence[i].type == 'comparison') {
 				sequence.comparisons--
-			} else if (sequence[i].type == 'status') {
-				tmpArray[sequence[i].idx].status = sequence[i].before
+			}
+			
+			if (sequence[i].status) {
+				tmpArray[sequence[i].status.index].status = sequence[i].status.before
 			}
 			
 			i--
@@ -59,8 +54,10 @@ export const step = n => {
 				sequence.swaps++
 			} else if (sequence[i].type == 'comparison') {
 				sequence.comparisons++
-			} else if (sequence[i].type == 'status') {
-				tmpArray[sequence[i].idx].status = sequence[i].after
+			}
+			
+			if (sequence[i].status) {
+				tmpArray[sequence[i].status.index].status = sequence[i].status.after
 			}
 		}
 		
