@@ -29,15 +29,16 @@
 		},
 		data() {
 			return {
-				length: 1,
-				max: 1
+				length: 50,
+				max: 50
 			}
 		},
 		methods: {
 			readInput() {
-				this.$store.dispatch('pause')
-				this.$store.commit('setSequence', null)
-				this.$store.dispatch('setArray', document.querySelector('#input').value.split(',').map(x => new Bar(x)))
+				const { commit, dispatch } = this.$store
+				
+				dispatch('pause')
+				dispatch('setSequence', document.querySelector('#input').value.split(',').map(x => new Bar(x)))
 			},
 			setLength() {
 				this.length = document.querySelector('#length').value * 1
@@ -45,20 +46,16 @@
 			setMax() {
 				this.max = document.querySelector('#max').value * 1
 			},
-			setSort(name) {
-				this.$store.commit('setSort', name)
-				this.$store.commit('setSequence', null)
-			},
 			randomArray() {
+				const { commit, dispatch, state } = this.$store
 				const arr = new Array(this.length).fill(1)
 				
 				for (let i in arr) {
 					arr[i] = new Bar(Math.ceil(Math.random() * this.max))
 				}
 				
-				this.$store.dispatch('pause')
-				this.$store.commit('setSequence', null)
-				this.$store.dispatch('setArray', arr)
+				dispatch('pause')
+				dispatch('setSequence', arr)
 			}
 		},
 		mounted: function () {
@@ -66,10 +63,11 @@
 				// Code that will run only after the
 				// entire view has been rendered
 				document.querySelector('#input').value = '9, 8, 7, 6, 5, 4, 3, 2, 1, 0'
-				this.readInput()
+				// this.readInput()
 				
 				this.setLength()
 				this.setMax()
+				this.randomArray()
 			})
 		}
 	}
