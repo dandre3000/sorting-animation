@@ -2,6 +2,36 @@ export const UNSORTED = 'white'
 export const SORTED = 'green'
 export const PIVOT = 'purple'
 
+export const randomColor = () => {
+	let i = Math.floor(Math.random()*3)
+	let r = 0
+	let g = 0
+	let b = 0
+	
+	switch(i) {
+		case 0:
+			r = 255
+			
+			Math.floor(Math.random()*2) == 0? g = Math.floor(Math.random() * 256) : b = Math.floor(Math.random() * 256)
+			break
+		case 1:
+			g = 255
+			
+			Math.floor(Math.random()*2) == 0? r = Math.floor(Math.random() * 256) : b = Math.floor(Math.random() * 256)
+			break
+		case 2:
+			b = 255
+			
+			Math.floor(Math.random()*2) == 0? r = Math.floor(Math.random() * 256) : g = Math.floor(Math.random() * 256)
+			break
+	}
+	
+	r *= 16 ** 4
+	g *= 16 ** 2
+	
+	return '#' + (r + g + b).toString(16)
+}
+
 export const Bar = class {
 	constructor(v) {
 		this.value = v

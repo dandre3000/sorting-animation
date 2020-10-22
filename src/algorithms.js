@@ -1,4 +1,4 @@
-import { SORTED, UNSORTED, PIVOT } from './Bar'
+import { SORTED, UNSORTED, PIVOT, randomColor } from './Bar'
 
 /* const isNumberArray = arr => {
 	if (arr instanceof Array == false) return false
@@ -394,17 +394,36 @@ export const mergesort = (arr, descending) => {
 		const result = []
 		let lIdx = i
 		let rIdx = i + l.length
+		let color = colors[i]
 		
 		while (l.length > 0 && r.length > 0) {
 			sequence.push({ type: 'comparison', index1: lIdx, index2: rIdx })
 			if (!descending && l[0].value <= r[0].value || descending && l[0].value >= r[0].value) {
-				if (lIdx != i) sequence.push({ type: 'splice', index1: lIdx, index2: i })
+				sequence.push({
+					type: 'splice',
+					index1: lIdx,
+					index2: i,
+					status: {
+						index: i,
+						before: arr[i].status,
+						after: color
+					}
+				})
 				
 				result.push(l.shift())
 				
 				lIdx++
 			} else {
-				if (rIdx != i) sequence.push({ type: 'splice', index1: rIdx, index2: i })
+				sequence.push({
+					type: 'splice',
+					index1: rIdx,
+					index2: i,
+					status: {
+						index: i,
+						before: arr[i].status,
+						after: color
+					}
+				})
 				
 				result.push(r.shift())
 				
@@ -448,6 +467,14 @@ export const mergesort = (arr, descending) => {
 	const copy = cleanArrayClone(arr)
 	
 	const sequence = newSequence()
+	
+	const colors = []
+	copy.forEach(() => {
+		colors.push(randomColor())
+	})
+	colors[0] = SORTED
+	
+	sequence.push({ type: 'split', before: UNSORTED, colors: colors })
 	
 	sort(copy, 0)
 	

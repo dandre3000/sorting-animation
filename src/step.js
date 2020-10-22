@@ -20,18 +20,23 @@ export const step = n => {
 	
 	while (i != target) {
 		if (n < 0) { // reverse
-			if (sequence[i].type == 'swap') { // two swaps cancel each other
-				let {index1, index2} = sequence[i]
-				
-				swap(tmpArray, index1, index2)
-				sequence.swaps--
-			} else if (sequence[i].type == 'splice') {
-				let {index1, index2} = sequence[i]
-				let t = tmpArray.splice(index2, 1)[0]
-				tmpArray.splice(index1, 0, t)
-				sequence.swaps--
-			} else if (sequence[i].type == 'comparison') {
-				sequence.comparisons--
+			let {index1, index2} = sequence[i] // two swaps cancel each other
+			switch (sequence[i].type) {
+				case 'swap':
+					swap(tmpArray, index1, index2)
+					sequence.swaps--
+					break
+				case 'splice':
+					tmpArray.splice(index1, 0, tmpArray.splice(index2, 1)[0])
+					sequence.swaps--
+					break
+				case 'comparison':
+					sequence.comparisons--
+					break
+				case 'split':
+					tmpArray.forEach(bar => {
+						bar.status = sequence[i].before
+					})
 			}
 			
 			if (sequence[i].status) {
@@ -42,18 +47,23 @@ export const step = n => {
 		} else if (n > 0) {
 			i++
 			
-			if (sequence[i].type == 'swap') {
-				let {index1, index2} = sequence[i]
-				
-				swap(tmpArray, index1, index2)
-				sequence.swaps++
-			} else if (sequence[i].type == 'splice') {
-				let {index1, index2} = sequence[i]
-				let t = tmpArray.splice(index1, 1)[0]
-				tmpArray.splice(index2, 0, t)
-				sequence.swaps++
-			} else if (sequence[i].type == 'comparison') {
-				sequence.comparisons++
+			let {index1, index2} = sequence[i]
+			switch (sequence[i].type) {
+				case 'swap':
+					swap(tmpArray, index1, index2)
+					sequence.swaps++
+					break
+				case 'splice':
+					tmpArray.splice(index2, 0, tmpArray.splice(index1, 1)[0])
+					sequence.swaps++
+					break
+				case 'comparison':
+					sequence.comparisons++
+					break
+				case 'split':
+					tmpArray.forEach((bar, j) => {
+						bar.status = sequence[i].colors[j]
+					})
 			}
 			
 			if (sequence[i].status) {
