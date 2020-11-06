@@ -7,12 +7,11 @@
 					Algorithms
 				</button>
 				<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-					<a class="dropdown-item" href="#" @click="setSort('bubblesort')">Bubblesort</a>
-					<a class="dropdown-item" href="#" @click="setSort('quicksort')">Quicksort</a>
-					<a class="dropdown-item" href="#" @click="setSort('randomquicksort')">Random Quicksort</a>
-					<a class="dropdown-item" href="#" @click="setSort('insertionsort')">Insertionsort</a>
-					<a class="dropdown-item" href="#" @click="setSort('selectionsort')">Selectionsort</a>
-					<a class="dropdown-item" href="#" @click="setSort('mergesort')">Mergesort</a>
+					<a class="dropdown-item" href="#" @click="sort('bubblesort')">Bubblesort</a>
+					<a class="dropdown-item" href="#" @click="sort('selectionsort')">Selectionsort</a>
+					<a class="dropdown-item" href="#" @click="sort('insertionsort')">Insertionsort</a>
+					<a class="dropdown-item" href="#" @click="sort('quicksort')">Quicksort</a>
+					<a class="dropdown-item" href="#" @click="sort('mergesort')">Mergesort</a>
 				</div>
 			</div>
 		</nav>
@@ -20,13 +19,10 @@
 </template>
 
 <script>
-	import { mapActions } from 'vuex'
-	
 	export default {
 		methods: {
-			setSort(name) {
-				this.$store.commit('setSort', name)
-				this.$store.commit('setSequence', this.$store.state.sort(this.$store.state.array, this.$store.state.descending))
+			sort(name) {
+				this.$store.commit('animation', name)
 			}
 		}
 	}
