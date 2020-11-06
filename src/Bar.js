@@ -1,59 +1,46 @@
-export const UNSORTED = 'white'
-export const SORTED = 'green'
-export const PIVOT = 'purple'
-
-export const randomColor = () => {
-	let i = Math.floor(Math.random()*3)
-	let r = 0
-	let g = 0
-	let b = 0
-	
-	switch(i) {
-		case 0:
-			r = 255
-			
-			Math.floor(Math.random()*2) == 0? g = Math.floor(Math.random() * 256) : b = Math.floor(Math.random() * 256)
-			break
-		case 1:
-			g = 255
-			
-			Math.floor(Math.random()*2) == 0? r = Math.floor(Math.random() * 256) : b = Math.floor(Math.random() * 256)
-			break
-		case 2:
-			b = 255
-			
-			Math.floor(Math.random()*2) == 0? r = Math.floor(Math.random() * 256) : g = Math.floor(Math.random() * 256)
-			break
-	}
-	
-	r *= 16 ** 4
-	g *= 16 ** 2
-	
-	return '#' + (r + g + b).toString(16)
-}
-
 export const Bar = class {
-	constructor(v) {
-		this.value = v
-		this.status = UNSORTED
+	constructor(value, color = 'white') {
+		this.value = value
+		this.color = color
 	}
 	
-	render(canv, ctx, step, array, i) {
-		const w = canv.width / (array.length * 2)
+	render(arrayLength, idx, canvas, animation) {
+		const ctx = canvas.getContext('2d')
+		const w = canvas.width / (arrayLength * 2)
 		
-		ctx.fillStyle = this.status
-		if (step.type == 'comparison' || step.type == 'swap' || step.type == 'splice') {
-			const { index1, index2 } = step
-			
-			if (i == index1) {
-				ctx.fillStyle = 'red'
-			} else if (i == index2) {
-				ctx.fillStyle = 'blue'
+		ctx.fillStyle = this.color
+		
+		if (animation) {
+			if (animation.currentFrame instanceof Array) {
+				animation.currentFrame.forEach(data => {
+					const { index, tmpColor } = data
+					
+					if (index == idx) {
+						if (tmpColor) ctx.fillStyle = tmpColor
+					}
+				})
 			}
-		} else if (step.type == 'end') {
-			ctx.fillStyle = SORTED
 		}
 		
-		ctx.fillRect(i * w * 2 + w / 2, canv.height, w, -this.value * (canv.height / 100))
+		ctx.fillRect(idx * w * 2 + w / 2, canvas.height, w, -this.value * (canvas.height / 100))
 	}
+}
+
+export const newBarArray = array => {
+	const result = []
+	array.forEach(v => {
+		result.push(new Bar(v))
+	})
+	
+	return result
+}
+
+export const randomArray = (length = 50, max = 50) => {
+	const array = new Array(length).fill(1)
+	
+	for (let i in array) {
+		array[i] = new Bar(Math.ceil(Math.random() * max))
+	}
+	
+	return array
 }
