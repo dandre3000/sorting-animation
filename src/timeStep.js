@@ -1,5 +1,4 @@
 // import {render} from './render'
-import { step } from './step'
 import store from './store'
 
 // const TARGET_FRAME_RATE = 60
@@ -24,45 +23,38 @@ export const timeStep = () => {
 
 	// while loop locked at an exact frame rate
 	while (accumulator >= dt) {
-		step(/* uTime, dt,  */1)
+		store.state.reverse? store.dispatch('previous') : store.dispatch('next')
 		
 		accumulator -= dt
 		// uTime += dt
 	}
 	
-	// render()
-	
-	if (state.mainBtn == 1 && state.sequence.index == state.sequence.length - 1) {
-		stop(true)
-	} else {
+	if (running) {
 		req = requestAnimationFrame(timeStep)
+	} else {
+		cancelAnimationFrame(req)
 	}
-	
 }
 
 export const start = () => {
-	if (req === 0) {
-		lastTime = 0
-		req = requestAnimationFrame(timeStep)
-		running = true
-		store.commit('mainBtn', 1)
+	if (!running) {
+		if (!(!store.state.reverse && store.state.animation.currentIdx == store.state.animation.frames.length - 1) && !(store.state.reverse && store.state.animation.currentIdx == 0)) {
+			lastTime = 0
+			running = true
+			req = requestAnimationFrame(timeStep)
+			store.commit('control', 1)
+		}
 	} else {
 		throw new Error('timeStep is already running: cannot start another animation frame request')
 	}
 }
 
-export const stop = (end = false) => {
+export const stop = () => {
 	if (req === 0) {
 		console.warn('No-op: timeStep is not running')
 	} else {
-		cancelAnimationFrame(req)
 		req = 0
 		running = false
-	}
-	
-	if (end) {
-		store.commit('mainBtn', 2)
-	} else {
-		store.commit('mainBtn', 0)
+		store.commit('control', 0)
 	}
 }

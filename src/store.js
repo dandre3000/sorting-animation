@@ -1,67 +1,62 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import * as algorithms from './algorithms.js'
 import { render } from './render'
-import { step } from './step.js'
-import { start, stop } from './timeStep.js'
+import { start, stop } from './timeStep'
+import * as algorithms from './algorithms'
 
 Vue.use(Vuex)
 
+const PAUSE = 0
+// const PLAY = 1
+
 export const state = {
-	array: [],
-	sequence: [],
+	array: null,
 	canvas: null,
-	sort: algorithms['quicksort'],
-	mainBtn: 0,
+	animation: null,
 	fps: 60,
-	descending: false
+	control: PAUSE,
+	descending: false,
+	reverse: false,
+	sort: ''
 }
 
 const mutations = {
-	setArray(state, arr) {
-		state.array = arr
+	array(state, array) {
+		state.array = array
 	},
-	setSequence(state) {
-		state.sequence = state.sort(state.array, state.descending)
+	canvas(state, canvas) {
+		state.canvas = canvas
 	},
-	setCanvas(state, canv) {
-		state.canvas = canv
+	animation(state, name = state.sort) {
+		state.sort = name
+		state.animation = algorithms[name](state.array, state.descending)
 	},
-	setSort(state, name) {
-		state.sort = algorithms[name]
+	control(state, v) {
+		state.control = v
 	},
-	setFps(state, n) {
-		state.fps = n
-	},
-	mainBtn(state, n) {
-		state.mainBtn = n
-	},
-	toggleDescending(state) {
+	descending(state) {
 		state.descending = !state.descending
+	},
+	reverse(state) {
+		state.reverse = !state.reverse
+	},
+	fps(state, v) {
+		state.fps = v
 	}
 }
 
 const actions = {
-	setArray({ commit }, arr) {
-		commit('setArray', arr)
-		render()
-	},
-	setSequence({ commit }, arr) {
-		commit('setArray', arr)
-		commit('setSequence')
-		render()
-	},
-	setCanvas: ({ commit }, canv) => {
-		commit('setCanvas', canv)
-		// render()
+	array({ commit }, array) {
+		commit('array', array)
+		render(state)
 	},
 	first() {
-		step(-99999)
-		stop()
+		state.animation.firstFrame()
+		render(state)
 	},
 	previous() {
-		step(-1)
-		stop()
+		state.animation.previousFrame()
+		render(state)
 	},
 	play() {
 		start()
@@ -69,30 +64,34 @@ const actions = {
 	pause() {
 		stop()
 	},
+	end({ commit }) {
+		stop()
+		commit('control', 2)
+	},
 	restart() {
-		step(-99999)
+		actions.first()
 		start()
 	},
 	next() {
-		step(1)
-		
-		const end = state.sequence.index == state.sequence.length - 1
-		stop(end)
+		state.animation.nextFrame()
+		render(state)
 	},
 	last() {
-		step(99999)
-		stop(true)
+		state.animation.lastFrame()
+		render(state)
 	},
-	setFps({ commit }, value) {
-		commit('setFps', value)
+	render() {
+		render(state)
 	},
 	toggleDescending({ commit }) {
-		commit('toggleDescending')
-		commit('setSequence', state.sort(state.array, state.descending))
+		commit('descending')
+		commit('animation')
+		if (state.control == 2) commit('control', 0)
 	}
 }
 
 const getters = {
+	
 }
 
 export default new Vuex.Store({
