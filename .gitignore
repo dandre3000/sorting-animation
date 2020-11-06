@@ -106,5 +106,5 @@ dist
 # batch files
 *.bat
 
-# old
-old
+# old-src
+old-src
