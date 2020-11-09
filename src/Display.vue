@@ -10,7 +10,22 @@
 			const $s = this.$store
 			
 			this.$nextTick(() => {
-				$s.commit('canvas', document.querySelector('#array-canvas'))
+				const canv = document.querySelector('#array-canvas')
+				
+				const canvasResize = () => {
+					canv.width = canv.clientWidth
+					canv.height = 9/16 * canv.width
+					this.$store.dispatch('render')
+				}
+				
+				window.onresize = e => {
+					canv.width = canv.clientWidth
+					canv.height = 9/16 * canv.width
+					this.$store.dispatch('render')
+				}
+				$s.commit('canvas', canv)
+				
+				canvasResize()
 			})
 		}
 	}

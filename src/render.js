@@ -6,7 +6,9 @@ export const render = ({ array, canvas, animation }) => {
 	ctx.fillStyle = 'black'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
 	
-	array.forEach((bar, i) => {
-		bar.render(array.length, i, canvas, animation)
-	})
+	if (canvas && animation) {
+		array.forEach((bar, i) => {
+			bar.render(array.length, i, canvas, animation)
+		})
+	}
 }
