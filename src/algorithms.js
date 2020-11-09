@@ -230,6 +230,97 @@ export const quicksort = (arr, descending) => {
 	return anim
 }
 
+export const randomquicksort = (arr, descending) => {
+	const copy = [].concat(arr)
+	copy.forEach(bar => {
+		bar.color = 'white'
+	})
+	
+	const anim = new Animation()
+	
+	const pivotIdx = (arr, l, r) => {
+		let idx = l
+		do {
+			idx = l + Math.round(Math.random() * (r - l)) // random element
+		} while (arr[idx].status == 'green')
+		
+		return idx
+	}
+	
+	const partition = (arr, l, r) => {
+		const idx = pivotIdx(arr, l, r)
+		const pivot = arr[idx].value // 1st element
+		let i = l + 1
+		
+		arr[idx] = new Bar(arr[idx].value, 'blue')
+		arr[l] = new Bar(arr[l].value, 'red')
+		anim.addFrame(arr)
+		
+		swap(arr, idx, l)
+		anim.addFrame(arr)
+		
+		arr[idx] = new Bar(arr[idx].value)
+		arr[l] = new Bar(arr[l].value, 'purple')
+		
+		for (let j = i; j <= r; j++) {
+			arr[j] = new Bar(arr[j].value, 'blue')
+			arr[i] = new Bar(arr[i].value, 'red')
+			anim.addFrame(arr)
+			
+			if (!descending && arr[j].value < pivot || descending && arr[j].value > pivot) {
+				if (j != i) {
+					swap(arr, i, j)
+					anim.addFrame(arr)
+				}
+				arr[i] = new Bar(arr[i].value)
+				i++
+			}
+			
+			arr[j] = new Bar(arr[j].value)
+			// arr[i] = new Bar(arr[i].value)
+		}
+		
+		arr[l] = new Bar(arr[l].value, 'blue')
+		arr[i - 1] = new Bar(arr[i - 1].value, 'red')
+		anim.addFrame(arr)
+		
+		swap(arr, l, i - 1)
+		anim.addFrame(arr)
+		
+		arr[l] = new Bar(arr[l].value)
+		arr[i - 1] = new Bar(arr[i - 1].value, 'green')
+		
+		return i - 1
+	}
+	
+	const sort = (arr, l, r) => {
+		if (l < r) {
+			const p = partition(arr, l, r); //index returned from partition
+			sort(arr, l, p - 1)
+			sort(arr, p + 1, r)
+		} else if (l == r) {
+			arr[l] = new Bar(arr[l].value, 'green')
+			anim.addFrame(arr)
+		}
+		
+		return arr;
+	}
+	
+	sort(copy, 0, copy.length - 1)
+	
+	copy.forEach((bar, i) => {
+		copy[i] = new Bar(bar.value, 'green')
+	})
+	anim.addFrame(copy)
+	
+	copy.forEach((bar, i) => {
+		copy[i] = new Bar(bar.value)
+	})
+	
+	return anim
+}
+
+
 export const mergesort = (arr, descending) => {
 	const randomColor = () => {
 		let i = Math.floor(Math.random()*3)

@@ -12,6 +12,7 @@
 					<a class="dropdown-item" href="#" @click="sort('insertionsort')">Insertionsort</a>
 					<a class="dropdown-item" href="#" @click="sort('quicksort')">Quicksort</a>
 					<a class="dropdown-item" href="#" @click="sort('mergesort')">Mergesort</a>
+					<a class="dropdown-item" href="#" @click="sort('randomquicksort')">Random Quicksort</a>
 				</div>
 			</div>
 		</nav>
