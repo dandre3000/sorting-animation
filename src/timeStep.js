@@ -22,7 +22,7 @@ export const timeStep = () => {
 	accumulator += frameTime
 
 	// while loop locked at an exact frame rate
-	while (accumulator >= dt) {
+	while (running && accumulator >= dt) {
 		store.state.reverse? store.dispatch('previous') : store.dispatch('next')
 		
 		accumulator -= dt
@@ -54,6 +54,7 @@ export const stop = () => {
 		console.warn('No-op: timeStep is not running')
 	} else {
 		req = 0
+		accumulator = 0
 		running = false
 		store.commit('control', 0)
 	}
