@@ -1,22 +1,20 @@
 <template>
-	<div>
-		<nav class='navbar navbar-expand-sm bg-dark'>
-			<span class="navbar-brand">Expand at sm</span>
-			<div class="dropdown">
-				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					Algorithms
-				</button>
-				<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-					<a class="dropdown-item" href="#" @click="sort('bubblesort')">Bubblesort</a>
-					<a class="dropdown-item" href="#" @click="sort('selectionsort')">Selectionsort</a>
-					<a class="dropdown-item" href="#" @click="sort('insertionsort')">Insertionsort</a>
-					<a class="dropdown-item" href="#" @click="sort('quicksort')">Quicksort</a>
-					<a class="dropdown-item" href="#" @click="sort('mergesort')">Mergesort</a>
-					<a class="dropdown-item" href="#" @click="sort('randomquicksort')">Random Quicksort</a>
-				</div>
+		<nav class='navbar navbar-expand-sm navbar-light bg-light'>
+			<span class="navbar-brand">Algorithms</span>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto">
+					<li class='nav-item'><a class='nav-link' href="#" @click="sort('bubblesort')">Bubblesort</a></li>
+					<li class='nav-item'><a class='nav-link' href="#" @click="sort('selectionsort')">Selectionsort</a></li>
+					<li class='nav-item'><a class='nav-link' href="#" @click="sort('insertionsort')">Insertionsort</a></li>
+					<li class='nav-item'><a class='nav-link' href="#" @click="sort('quicksort')">Quicksort</a></li>
+					<li class='nav-item'><a class='nav-link' href="#" @click="sort('randomquicksort')">Random Quicksort</a></li>
+					<li class='nav-item'><a class='nav-link' href="#" @click="sort('mergesort')">Mergesort</a></li>
+				</ul>
 			</div>
 		</nav>
-	</div>
 </template>
 
 <script>
