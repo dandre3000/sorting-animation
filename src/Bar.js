@@ -4,25 +4,22 @@ export const Bar = class {
 		this.color = color
 	}
 	
-	render(arrayLength, idx, canvas, animation) {
+	render(array, idx, canvas) {
 		const ctx = canvas.getContext('2d')
-		const w = canvas.width / (arrayLength * 2)
+		const w = canvas.width / (array.length * 2)
 		
 		ctx.fillStyle = this.color
 		
-		if (animation) {
-			if (animation.currentFrame instanceof Array) {
-				animation.currentFrame.forEach(data => {
-					const { index, tmpColor } = data
-					
-					if (index == idx) {
-						if (tmpColor) ctx.fillStyle = tmpColor
-					}
-				})
+		let max = 0
+		if (array) {
+			if (array instanceof Array) {
+				for (let i in array) {
+					if (array[i].value > max) max = array[i].value
+				}
 			}
 		}
 		
-		ctx.fillRect(idx * w * 2 + w / 2, canvas.height, w, -this.value * (canvas.height / 100))
+		ctx.fillRect(idx * w * 2 + w / 2, canvas.height, w, -(this.value / max) * canvas.height)
 	}
 }
 

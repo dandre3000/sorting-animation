@@ -1,4 +1,4 @@
-export const render = ({ array, canvas, animation }) => {
+export const render = ({ array, canvas }) => {
 	if (!canvas) return
 	
 	const ctx = canvas.getContext('2d')
@@ -6,9 +6,9 @@ export const render = ({ array, canvas, animation }) => {
 	ctx.fillStyle = 'black'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
 	
-	if (canvas && animation) {
+	if (canvas && array) {
 		array.forEach((bar, i) => {
-			bar.render(array.length, i, canvas, animation)
+			bar.render(array, i, canvas)
 		})
 	}
 }
