@@ -1,4 +1,5 @@
 # sorting-animation
+Visualization of various sorting algorithms.
 
 - Each frame of the sorting animation can be viewed individually from start to finish & vice-versa
 - Variable animation framerate
