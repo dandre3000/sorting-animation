@@ -9,7 +9,8 @@
 		<button id='last' @click='last'><img src='assets/images/last.png'></button>
 		<input id='descending' @input="toggleDescending" type="checkbox"><label for="descending">Descending</label>
 		<input id='reverse' @input="toggleReverse" type="checkbox"><label for="reverse">Reverse</label>
-		<input id='fps' @input="setFps" type="range" min="1" max="60" value="60" class="slider"><p>Fps: {{ this.$store.state.fps }}</p>
+		<input id='fps' @input="setFps" type="range" min="1" max="60" value="60" class="slider"><span>Fps: {{ this.$store.state.fps }}</span>
+		<span>{{ this.$store.state.sort }}</span>
 	</div>
 </template>
 
@@ -52,7 +53,7 @@
 				this.$store.commit('reverse')
 			},
 			setFps() {
-				this.$store.commit('fps', document.querySelector('#fps').value)
+				this.$store.dispatch('fps', document.querySelector('#fps').value)
 			}
 		},
 		mounted: function () {
