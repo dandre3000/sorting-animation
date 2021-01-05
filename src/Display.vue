@@ -19,9 +19,7 @@
 				}
 				
 				window.onresize = e => {
-					canv.width = canv.clientWidth
-					canv.height = 9/16 * canv.width
-					this.$store.dispatch('render')
+					canvasResize()
 				}
 				$s.commit('canvas', canv)
 				
