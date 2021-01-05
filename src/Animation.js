@@ -16,26 +16,12 @@ export const Animation = class {
 		if (this.currentIdx == this.frames.length - 1) return
 		
 		this.currentFrame = this.frames[++this.currentIdx]
-		
-		store.commit('array', this.currentFrame)
-		if (!store.state.reverse && this.currentIdx == this.frames.length - 1) {
-			store.dispatch('end')
-		}
 	}
 	
 	previousFrame() {
 		if (this.currentIdx == 0) return
 		
 		this.currentFrame = this.frames[--this.currentIdx]
-		
-		store.commit('array', this.currentFrame)
-		if (store.state.reverse && this.currentIdx == 0) {
-			store.dispatch('pause')
-		}
-		
-		if (store.state.control == 2) {
-			store.commit('control', 0)
-		}
 	}
 	
 	firstFrame() {
