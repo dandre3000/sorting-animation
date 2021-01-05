@@ -32,19 +32,24 @@
 				this.$store.dispatch('pause')
 			},
 			restart() {
-				this.$store.dispatch('restart')
+				this.$store.dispatch('first')
+				this.$store.dispatch('play')
 			},
 			previous() {
 				this.$store.dispatch('previous')
+				this.$store.dispatch('array', this.$store.state.animation.currentFrame)
 			},
 			next() {
 				this.$store.dispatch('next')
+				this.$store.dispatch('array', this.$store.state.animation.currentFrame)
 			},
 			first() {
 				this.$store.dispatch('first')
+				this.$store.dispatch('array', this.$store.state.animation.currentFrame)
 			},
 			last() {
 				this.$store.dispatch('last')
+				this.$store.dispatch('array', this.$store.state.animation.currentFrame)
 			},
 			toggleDescending() {
 				this.$store.dispatch('toggleDescending')
