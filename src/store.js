@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { render } from './render'
-import { start, stop } from './timeStep'
+import { start, stop, setFps } from './timeStep'
 import * as algorithms from './algorithms'
 
 Vue.use(Vuex)
@@ -52,17 +52,17 @@ const actions = {
 	},
 	first() {
 		state.animation.firstFrame()
-		render(state)
 	},
 	previous() {
 		state.animation.previousFrame()
-		render(state)
 	},
-	play() {
-		start()
+	play({ commit }) {
+		if (!(!state.reverse && state.animation.currentIdx == state.animation.frames.length - 1) && !(state.reverse && state.animation.currentIdx == 0)) {
+			if (start()) commit('control', 1)
+		}
 	},
-	pause() {
-		stop()
+	pause({ commit }) {
+		if (stop()) commit('control', 0)
 	},
 	end({ commit }) {
 		stop()
@@ -74,11 +74,9 @@ const actions = {
 	},
 	next() {
 		state.animation.nextFrame()
-		render(state)
 	},
 	last() {
 		state.animation.lastFrame()
-		render(state)
 	},
 	render() {
 		render(state)
@@ -87,6 +85,10 @@ const actions = {
 		commit('descending')
 		commit('animation')
 		if (state.control == 2) commit('control', 0)
+	},
+	fps({ commit }, n) {
+		setFps(n)
+		commit('fps', n)
 	}
 }
 
